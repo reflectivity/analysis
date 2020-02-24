@@ -1,0 +1,3 @@
+# a four layer system that has an absorption dip in the critical edge
+layers/test0.layers
+data/test0.dat
