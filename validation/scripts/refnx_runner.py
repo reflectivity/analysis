@@ -4,7 +4,7 @@ import glob
 import numpy as np
 from numpy.testing import assert_allclose
 
-from refnx.reflect import reflectivity
+from refnx.reflect.reflect_model import abeles
 
 PTH = os.path.join('..', 'test', 'unpolarised')
 
@@ -43,7 +43,7 @@ def run_tests():
         data = np.loadtxt(os.path.join(PTH, test[1]))
         assert data.shape[1] == 2
 
-        R = reflectivity(data[:, 0], slabs, dq=0)
+        R = abeles(data[:, 0], slabs)
         assert R.shape == data[:, 1].shape
 
         assert_allclose(R, data[:, 1], rtol=8e-5)
