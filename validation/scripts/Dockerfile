@@ -9,16 +9,14 @@
 
 FROM debian:latest
 
-RUN apt-get update
-
-RUN apt-get install -y python3.7 python3.7-dev git build-essential vim  curl\
-                       python3.7-distutils python3-wxgtk4.0 libgtk-3-dev\
-                       gfortran  cmake libgsl-dev libboost-all-dev \
-                       libfftw3-dev libtiff5-dev qt5-default \
-                       libqt5designercomponents5 qttools5-dev libqt5svg5-dev
-
-# setup pips, pip3.6 and pip3.7
-RUN curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py && python3.7 get-pip.py
+RUN apt-get update \
+    && apt-get install -y python3.7 python3.7-dev git build-essential vim curl\
+        python3.7-distutils python3-wxgtk4.0 libgtk-3-dev\
+        gfortran cmake libgsl-dev libboost-all-dev \
+        libfftw3-dev libtiff5-dev qt5-default \
+        libqt5designercomponents5 qttools5-dev libqt5svg5-dev \
+    && curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py \
+    && python3.7 get-pip.py
 
 # install reflectometry packages for Python testing
 RUN pip3.7 install numpy scipy cython pytest && pip3.7 install refnx refl1d pytest
