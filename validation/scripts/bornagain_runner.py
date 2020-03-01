@@ -43,20 +43,20 @@ def get_sample(slabs):
     # creating materials
     multi_layer = ba.MultiLayer()
 
-    ambient = ba.MaterialBySLD('ma', slabs[0, 1] * 1e-6, slabs[0, 2] * 1e-6)
+    ambient = ba.MaterialBySLD('ma', slabs[0, 1] * 1e-6, 0)
     layer = ba.Layer(ambient)
     multi_layer.addLayer(layer)
 
     for slab in slabs[1:-1]:
-        material = ba.MaterialBySLD('stuff', slab[1] * 1e-6, slab[1] * 1e-6)
+        material = ba.MaterialBySLD('stuff', slab[1] * 1e-6, slab[2] * 1e-6)
         layer = ba.Layer(material, slab[0] * angstrom)
 
         roughness = ba.LayerRoughness()
-        roughness.setSigma(layer[3] * angstrom)
+        roughness.setSigma(slab[3] * angstrom)
 
         multi_layer.addLayerWithTopRoughness(layer, roughness)
 
-    substrate = ba.MaterialBySLD('msub', slabs[-1, 1] * 1e-6, slabs[-1, 2] * 1e-6)
+    substrate = ba.MaterialBySLD('msub', slabs[-1, 1] * 1e-6, 0)
     layer = ba.Layer(substrate)
     roughness = ba.LayerRoughness()
     roughness.setSigma(slabs[-1, 3] * angstrom)
@@ -70,6 +70,7 @@ def get_simulation(qzs):
     Defines and returns specular simulation
     with a qz-defined beam
     """
+    # bornagain requires Qz in nm
     scan = ba.QSpecScan(qzs * 10.)
     simulation = ba.SpecularSimulation()
     simulation.setScan(scan)
