@@ -6,5 +6,13 @@
 # implementations treat roughnesses. Both test2 and
 # test3 represent a Gaussian roughness of an interface
 # and should give identical reflectivities.
+# The error function is calculated as:
+#
+# from scipy.special import erf
+# x = np.linspace(-25, 25., 2001)
+# y = 6.36 * (0.5 * (erf(x / np.sqrt(2.) / 3.) + 1))
+#
+# The factor of sqrt(2) is to normalise it to the CDF
+# of the unit normal distribution.
 layers/test3.layers
 data/test3.dat
