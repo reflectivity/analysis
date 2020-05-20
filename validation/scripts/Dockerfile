@@ -7,19 +7,24 @@
 # docker run -it --rm -v /bin/bash
 
 
-FROM debian:latest
+FROM ubuntu:latest
 
 RUN apt-get update \
-    && apt-get install -y python3.7 python3.7-dev git build-essential vim curl\
-        python3.7-distutils python3-wxgtk4.0 libgtk-3-dev\
+    && apt-get install -y --no-install-recommends \
+        gnupg2 \
+        software-properties-common \
+    && add-apt-repository -y ppa:deadsnakes \
+    && apt-get update \
+    && apt-get install -y --no-install-recommends python3.7 python3.7-dev \
+        python3.7-venv python3.7-distutils python3-pip \
+    && apt-get install -y vim curl build-essential python3-wxgtk4.0 \
+        libgtk-3-dev git\
         gfortran cmake libgsl-dev libboost-all-dev \
         libfftw3-dev libtiff5-dev qt5-default \
         libqt5designercomponents5 qttools5-dev libqt5svg5-dev \
-    && curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py \
-    && python3.7 get-pip.py
-
-# install reflectometry packages for Python testing
-RUN pip3.7 install numpy scipy cython pytest && pip3.7 install refnx refl1d pytest
+    && python3.7 -m pip install numpy scipy cython pytest setuptools wheel \
+    && python3.7 -m pip install refnx refl1d pytest \
+    && apt-get clean
 
 # make and install BornAgain
 # to use source /usr/local/bin/thisbornagain.sh \
