@@ -6,7 +6,8 @@ from numpy.testing import assert_allclose
 
 from refnx.reflect.reflect_model import abeles
 
-PTH = os.path.join('..', 'test', 'unpolarised')
+
+PTH = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'test', 'unpolarised')
 
 
 def find_tests():
