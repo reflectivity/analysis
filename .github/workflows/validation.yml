@@ -47,7 +47,7 @@ jobs:
         sudo make install
         cd $HOME
         sudo rm -rf BornAgain
-        cd GITHUB_WORKSPACE/analysis
+        cd $GITHUB_WORKSPACE/analysis
 
     - name: Validate
       run: |
