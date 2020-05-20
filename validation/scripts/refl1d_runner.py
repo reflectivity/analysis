@@ -6,7 +6,7 @@ from numpy.testing import assert_allclose
 
 from refl1d import abeles
 
-PTH = os.path.join('..', 'test', 'unpolarised')
+PTH = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'test', 'unpolarised')
 
 
 def find_tests():
