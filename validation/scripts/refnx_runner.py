@@ -13,5 +13,5 @@ def run_tests():
         np.testing.assert_allclose(R, data[:, 1], rtol=8e-5)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     run_tests()
