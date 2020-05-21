@@ -30,7 +30,9 @@ RUN apt-get update \
 # to use source /usr/local/bin/thisbornagain.sh \
 RUN cd ~ \
     && git clone --recursive https://github.com/scgmlz/BornAgain.git \
-    && cd BornAgain && mkdir build && cd build \
+    && cd BornAgain \
+    && git checkout develop \
+    && mkdir build && cd build \
     && cmake -DCMAKE_INSTALL_PREFIX=/usr/local ../ \
     && make -j4 \
     && make install \
