@@ -85,5 +85,7 @@ jobs:
         # check that the test files have good style
         black --check validation/scripts/*.py
 
+        source /usr/local/bin/thisbornagain.sh
         python validation/scripts/refl1d_runner.py
         python validation/scripts/refnx_runner.py
+        python validation/scripts/bornagain_runner.py
