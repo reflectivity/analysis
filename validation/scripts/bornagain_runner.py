@@ -31,6 +31,8 @@ def get_sample(slabs):
     roughness.setSigma(slabs[-1, 3] * angstrom)
     multi_layer.addLayerWithTopRoughness(layer, roughness)
 
+    multi_layer.setRoughnessModel(ba.RoughnessModel.NEVOT_CROCE)
+
     return multi_layer
 
 

@@ -64,7 +64,9 @@ jobs:
       run: |
         cd $HOME
         git clone --recursive https://github.com/scgmlz/BornAgain.git
-        mkdir BornAgain/build && cd BornAgain/build
+        cd BornAgain
+        git checkout develop
+        mkdir build && cd build
 
         cmake -DCMAKE_INSTALL_PREFIX=/usr/local -DCMAKE_C_COMPILER_LAUNCHER=ccache \
           -DCMAKE_CXX_COMPILER_LAUNCHER=ccache ../
