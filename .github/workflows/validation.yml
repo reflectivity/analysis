@@ -32,11 +32,11 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         python -m pip install wheel setuptools
-        python -m pip install numpy scipy cython pytest
+        python -m pip install numpy scipy cython pytest black
         python -m pip install refnx
-        # install refl1d from source (because the last release requires wxpython
-        # which requires a lot of time to build, the git repo doesn't at time
-        # of writing)
+        # install refl1d from source (because the last release requires
+        # wxpython which requires a lot of time to build, the git repo doesn't
+        # at time of writing)
         python -m pip install git+https://github.com/reflectometry/refl1d.git
 
     # use ccache for building BornAgain, might save time
@@ -80,5 +80,8 @@ jobs:
 
     - name: Validate
       run: |
+        # check that the test files have good style
+        black --check validation/scripts/*.py
+
         python validation/scripts/refl1d_runner.py
         python validation/scripts/refnx_runner.py
