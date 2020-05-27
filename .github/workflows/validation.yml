@@ -87,9 +87,8 @@ jobs:
     - name: Validate
       run: |
         source /usr/local/bin/thisbornagain.sh
-        python validation/scripts/refl1d_runner.py
-        python validation/scripts/refnx_runner.py
-        python validation/scripts/bornagain_runner.py
+        # run validation via pytest (for Python packages)
+        pytest validation/scripts
 
         # check that the test files have good style
         black --check validation/scripts/*.py
