@@ -10,7 +10,8 @@ which specifies a slab-like model for which the reflectivity needs to be
 calculated.
 The next line is a string that refers to a file in the `data` directory
 containing the validated values against which the reflectivity calculation is
-to be checked.
+to be checked. These 'datafiles' will eventually be standard ORSO format, but
+for the time being they are Q (Å**-1), R, [dR (1sd) [, dQ (Å**-1) (1sd)]].
 
 The layer specification file has the layout:
 

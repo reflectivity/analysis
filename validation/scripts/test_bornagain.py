@@ -48,18 +48,30 @@ def get_simulation(qzs):
     return simulation
 
 
-def run_tests():
+def test_bornagain():
+    # NCOLS:
+    # 2 - test kernel only
+    # 3 - test kernel and chi2 calculation
+    # 4 - test resolution smearing and chi2 calculation
+
+    # test no resolution first
     for slabs, data in get_test_data():
-        simulation = get_simulation(data[:, 0])
-        sample = get_sample(slabs)
-        simulation.setSample(sample)
-        simulation.runSimulation()
-        R = simulation.result().array()
+        # no resolution data, just test kernel
+        if data.shape[1] < 4:
+            kernel_test(slabs, data)
 
-        assert R.shape == data[:, 1].shape
 
-        np.testing.assert_allclose(R, data[:, 1], rtol=8e-5)
+def kernel_test(slabs, data):
+    simulation = get_simulation(data[:, 0])
+    sample = get_sample(slabs)
+    simulation.setSample(sample)
+    simulation.runSimulation()
+    R = simulation.result().array()
+
+    assert R.shape == data[:, 1].shape
+
+    np.testing.assert_allclose(R, data[:, 1], rtol=8e-5)
 
 
 if __name__ == "__main__":
-    run_tests()
+    test_bornagain()

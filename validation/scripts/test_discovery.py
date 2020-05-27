@@ -24,10 +24,11 @@ def get_test_data():
     ignored     SLD_backing  iSLD_backing rough_backing2
 
     `data` contains the test reflectivity data. It's an np.ndarray with
-    shape `(M, 2)`, where M is the number of datapoints. The first column
-    contains Q points (reciprocal Angstrom), the second column the
-    reflectivity data. In future extra columns may be added to represent
-    dR and dQ.
+    shape `(M, N)`, where M is the number of datapoints, and N in [2, 3, 4].
+    The first column contains Q points (reciprocal Angstrom), the second column
+    the reflectivity data, the optional third and fourth columns are dR and dQ.
+    If present dR and dQ are 1 standard deviation uncertainties on reflectivity
+    and Q-resolution (gaussian resolution kernel).
     """
     # find all the unpolarised tests in analysis/validation/test/unpolarised
     tests = glob.glob(os.path.join(PTH, "*.txt"))
@@ -40,7 +41,7 @@ def get_test_data():
         assert slabs.shape[1] == 4
 
         data = np.loadtxt(data)
-        assert data.shape[1] == 2
+        assert data.shape[1] in [2, 3, 4]
 
         yield slabs, data
 
