@@ -1,4 +1,5 @@
 import itertools
+import warnings
 import pytest
 import numpy as np
 from test_discovery import get_test_data
@@ -27,12 +28,19 @@ def test_refnx(nsd, backend):
     # 2 - test kernel only
     # 3 - test kernel and chi2 calculation
     # 4 - test resolution smearing and chi2 calculation
-
     test_name, slabs, data = nsd
-    # test no resolution first
-    # no resolution data, just test kernel
-    if data.shape[1] < 4:
-        kernel_test(slabs, data, backend)
+
+    with warnings.catch_warnings():
+        warnings.filterwarnings(
+            "ignore",
+            message="Using the SLOW reflectivity calculation.",
+            category=UserWarning,
+        )
+
+        # test no resolution first
+        # no resolution data, just test kernel
+        if data.shape[1] < 4:
+            kernel_test(slabs, data, backend)
 
 
 def kernel_test(slabs, data, backend):
