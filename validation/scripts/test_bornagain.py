@@ -1,3 +1,4 @@
+import pytest
 import numpy as np
 from test_discovery import get_test_data
 
@@ -48,8 +49,21 @@ def get_simulation(qzs):
     return simulation
 
 
-def test_bornagain():
-    # NCOLS:
+tests = list(get_test_data())
+ids = [f"{t[0][0]}" for t in tests]
+
+
+@pytest.mark.parametrize("nsd", tests, ids=ids)
+def test_bornagain(nsd):
+    """
+    Run validation for BornAgain.
+
+    Parameters
+    ----------
+    nsd: tuple
+        test_name, slabs, data
+    """
+    # NCOLS of data:
     # 2 - test kernel only
     # 3 - test kernel and chi2 calculation
     # 4 - test resolution smearing and chi2 calculation
@@ -62,6 +76,16 @@ def test_bornagain():
 
 
 def kernel_test(slabs, data):
+    """
+    Test the reflectivity kernel for BornAgain.
+
+    Parameters
+    ----------
+    slabs: np.ndarray
+        Slab representation of the system
+    data: np.ndarray
+        Q, R arrays
+    """
     simulation = get_simulation(data[:, 0])
     sample = get_sample(slabs)
     simulation.setSample(sample)
@@ -74,4 +98,5 @@ def kernel_test(slabs, data):
 
 
 if __name__ == "__main__":
-    test_bornagain()
+    for nsd in tests:
+        test_bornagain(nsd)

@@ -36,7 +36,7 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         python -m pip install wheel setuptools
-        python -m pip install numpy scipy cython pytest black
+        python -m pip install numpy scipy cython pytest black pyopencl
         python -m pip install refnx
         # install refl1d from source (because the last release requires
         # wxpython which requires a lot of time to build, the git repo doesn't
@@ -91,4 +91,4 @@ jobs:
         pytest validation/scripts
 
         # check that the test files have good style
-        black --check validation/scripts/*.py
+        black --check -l 80 validation/scripts/*.py

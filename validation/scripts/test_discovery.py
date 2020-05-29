@@ -9,6 +9,10 @@ PTH = os.path.join(
 )
 
 
+def idfn(val):
+    return val
+
+
 def get_test_data():
     """
     A generator yielding (slabs, data) tuples.
@@ -33,17 +37,17 @@ def get_test_data():
     # find all the unpolarised tests in analysis/validation/test/unpolarised
     tests = glob.glob(os.path.join(PTH, "*.txt"))
 
-    # layers/data tuples
-    test_files = [get_data(test) for test in tests]
+    for test in tests:
+        # layers/data tuples
+        layers, data = get_data(test)
 
-    for layers, data in test_files:
         slabs = np.loadtxt(layers)
         assert slabs.shape[1] == 4
 
         data = np.loadtxt(data)
         assert data.shape[1] in [2, 3, 4]
 
-        yield slabs, data
+        yield os.path.basename(test), slabs, data
 
 
 def get_data(file):
