@@ -70,7 +70,7 @@ def kernel_test(slabs, data, backend):
 def resolution_test(slabs, data):
     stk = Stack()
     for i, slab in enumerate(slabs[::-1]):
-        m = SLD(f'layer {i}', rho=slab[1], irho=slab[2])
+        m = SLD(f"layer {i}", rho=slab[1], irho=slab[2])
         stk |= m(thickness=slab[0], interface=slab[-1])
 
     probe = QProbe(Q=data[:, 0], dQ=data[:, 3])

@@ -48,6 +48,7 @@ def get_simulation(qzs):
     simulation.setScan(scan)
     return simulation
 
+
 def get_simulation_smeared(qzs, dqzs):
     """
     Defines and returns specular simulation
@@ -58,8 +59,8 @@ def get_simulation_smeared(qzs, dqzs):
     n_samples = 17
     distr = ba.RangedDistributionGaussian(n_samples, n_sig)
 
-    scan = ba.QSpecScan(qzs * 10.)
-    scan.setAbsoluteQResolution(distr, dqzs * 10.)
+    scan = ba.QSpecScan(qzs * 10.0)
+    scan.setAbsoluteQResolution(distr, dqzs * 10.0)
 
     simulation = ba.SpecularSimulation()
     simulation.setScan(scan)

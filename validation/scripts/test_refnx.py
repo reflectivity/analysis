@@ -70,9 +70,11 @@ def resolution_test(slabs, data, backend):
         structure |= m(slab[0], slab[-1])
 
     with use_reflect_backend(backend):
-        model = ReflectModel(structure, bkg=0.)
+        model = ReflectModel(structure, bkg=0.0)
         model.quad_order = 17
-        R = model.model(data[:, 0], x_err=data[:, -1] * 2 * np.sqrt(2*np.log(2)))
+        R = model.model(
+            data[:, 0], x_err=data[:, -1] * 2 * np.sqrt(2 * np.log(2))
+        )
         np.testing.assert_allclose(R, data[:, 1], rtol=0.03)
 
 
