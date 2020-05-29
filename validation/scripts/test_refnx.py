@@ -41,7 +41,7 @@ def test_refnx(nsd, backend):
             resolution_test(slabs, data, backend)
         elif data.shape[1] < 4:
             # no resolution data, just test kernel
-            kernel_test(slabs, data)
+            kernel_test(slabs, data, backend)
 
 
 def kernel_test(slabs, data, backend):
