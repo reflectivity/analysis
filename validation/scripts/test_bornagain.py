@@ -69,7 +69,7 @@ def get_simulation_smeared(qzs, dqzs):
 
 
 tests = list(get_test_data())
-ids = [f"{t[0][0]}" for t in tests]
+ids = [f"{t[0]}" for t in tests]
 
 
 @pytest.mark.parametrize("nsd", tests, ids=ids)
