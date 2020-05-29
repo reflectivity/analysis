@@ -35,6 +35,11 @@ def test_refl1d(nsd, backend):
 
     if data.shape[1] == 4:
         # resolution smeared
+
+        if backend == abeles.refl:
+            # can't set backend for resolution smearing tests
+            return
+
         resolution_test(slabs, data)
     elif data.shape[1] < 4:
         # no resolution data, just test kernel
