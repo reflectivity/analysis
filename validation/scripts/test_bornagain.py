@@ -68,11 +68,11 @@ def test_bornagain(nsd):
     # 3 - test kernel and chi2 calculation
     # 4 - test resolution smearing and chi2 calculation
 
-    # test no resolution first
-    for slabs, data in get_test_data():
-        # no resolution data, just test kernel
-        if data.shape[1] < 4:
-            kernel_test(slabs, data)
+    test_name, slabs, data = nsd
+
+    # no resolution data, just test kernel
+    if data.shape[1] < 4:
+        kernel_test(slabs, data)
 
 
 def kernel_test(slabs, data):
