@@ -56,7 +56,7 @@ def get_simulation_smeared(qzs, dqzs):
     """
     # 3.5 sigma to sync with refnx
     n_sig = 3.5
-    n_samples = 17
+    n_samples = 21
     distr = ba.RangedDistributionGaussian(n_samples, n_sig)
 
     scan = ba.QSpecScan(qzs * 10.0)
