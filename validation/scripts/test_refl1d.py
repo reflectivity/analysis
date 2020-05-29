@@ -35,11 +35,12 @@ def test_refl1d(nsd, backend):
 
     if data.shape[1] == 4:
         # resolution smeared
-
         if backend == abeles.refl:
-            # can't set backend for resolution smearing tests
-            return
+            # no way of setting backend for resolution smearing tests
+            pass
 
+        # TODO, when QProbe gets oversampling
+        pytest.xfail("refl1d QProbe does not have oversample")
         resolution_test(slabs, data)
     elif data.shape[1] < 4:
         # no resolution data, just test kernel
@@ -79,6 +80,8 @@ def resolution_test(slabs, data):
         stk |= m(thickness=slab[0], interface=slab[-1])
 
     probe = QProbe(Q=data[:, 0], dQ=data[:, 3])
+    # TODO, oversample when QProbe can do that
+
     M = Experiment(stk, probe)
     _, R = M.reflectivity()
     np.testing.assert_allclose(R, data[:, 1], rtol=0.03)
