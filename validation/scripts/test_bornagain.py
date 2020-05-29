@@ -49,8 +49,27 @@ def get_simulation(qzs):
     return simulation
 
 
+def get_simulation_smeared(qzs, dqzs):
+    """
+    Defines and returns specular simulation
+    with a qz-defined beam
+    """
+    # 3.5 sigma to sync with refnx
+    n_sig = 3.5
+    n_samples = 21
+    distr = ba.RangedDistributionGaussian(n_samples, n_sig)
+
+    scan = ba.QSpecScan(qzs * 10.0)
+    scan.setAbsoluteQResolution(distr, dqzs * 10.0)
+
+    simulation = ba.SpecularSimulation()
+    simulation.setScan(scan)
+
+    return simulation
+
+
 tests = list(get_test_data())
-ids = [f"{t[0][0]}" for t in tests]
+ids = [f"{t[0]}" for t in tests]
 
 
 @pytest.mark.parametrize("nsd", tests, ids=ids)
@@ -70,9 +89,24 @@ def test_bornagain(nsd):
 
     test_name, slabs, data = nsd
 
-    # no resolution data, just test kernel
-    if data.shape[1] < 4:
+    if data.shape[1] == 4:
+        # resolution smeared
+        resolution_test(slabs, data)
+    elif data.shape[1] < 4:
+        # no resolution data, just test kernel
         kernel_test(slabs, data)
+
+
+def resolution_test(slabs, data):
+    simulation = get_simulation_smeared(data[:, 0], data[:, -1])
+    sample = get_sample(slabs)
+    simulation.setSample(sample)
+    simulation.runSimulation()
+    R = simulation.result().array()
+
+    assert R.shape == data[:, 1].shape
+
+    np.testing.assert_allclose(R, data[:, 1], rtol=0.03)
 
 
 def kernel_test(slabs, data):

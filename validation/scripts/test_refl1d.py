@@ -5,6 +5,7 @@ from test_discovery import get_test_data
 
 from refl1d import abeles
 from refl1d.reflectivity import reflectivity_amplitude
+from refl1d.names import Stack, QProbe, Experiment, SLD
 
 # abeles.refl is a Python calculator, reflectivity_amplitude uses
 # a C extension
@@ -31,9 +32,18 @@ def test_refl1d(nsd, backend):
     # 4 - test resolution smearing and chi2 calculation
 
     test_name, slabs, data = nsd
-    # test no resolution first
-    # no resolution data, just test kernel
-    if data.shape[1] < 4:
+
+    if data.shape[1] == 4:
+        # resolution smeared
+        if backend == abeles.refl:
+            # no way of setting backend for resolution smearing tests
+            pass
+
+        # TODO, when QProbe gets oversampling
+        pytest.xfail("refl1d QProbe does not have oversample")
+        resolution_test(slabs, data)
+    elif data.shape[1] < 4:
+        # no resolution data, just test kernel
         kernel_test(slabs, data, backend)
 
 
@@ -61,6 +71,20 @@ def kernel_test(slabs, data, backend):
 
     assert R.shape == data[:, 1].shape
     np.testing.assert_allclose(R, data[:, 1], rtol=8e-5)
+
+
+def resolution_test(slabs, data):
+    stk = Stack()
+    for i, slab in enumerate(slabs[::-1]):
+        m = SLD(f"layer {i}", rho=slab[1], irho=slab[2])
+        stk |= m(thickness=slab[0], interface=slab[-1])
+
+    probe = QProbe(Q=data[:, 0], dQ=data[:, 3])
+    # TODO, oversample when QProbe can do that
+
+    M = Experiment(stk, probe)
+    _, R = M.reflectivity()
+    np.testing.assert_allclose(R, data[:, 1], rtol=0.03)
 
 
 if __name__ == "__main__":
