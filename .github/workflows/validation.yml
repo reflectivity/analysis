@@ -73,8 +73,8 @@ jobs:
         mkdir build && cd build
 
         cmake -DCMAKE_INSTALL_PREFIX=/usr/local ../
-#        cmake -DCMAKE_INSTALL_PREFIX=/usr/local -DCMAKE_C_COMPILER_LAUNCHER=ccache \
-#          -DCMAKE_CXX_COMPILER_LAUNCHER=ccache ../
+        #        cmake -DCMAKE_INSTALL_PREFIX=/usr/local -DCMAKE_C_COMPILER_LAUNCHER=ccache \
+        #          -DCMAKE_CXX_COMPILER_LAUNCHER=ccache ../
         make -j4
         sudo make install
 
