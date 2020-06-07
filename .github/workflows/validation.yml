@@ -51,13 +51,13 @@ jobs:
         string(TIMESTAMP current_date "%Y-%m-%d-%H;%M;%S" UTC)
         message("::set-output name=timestamp::${current_date}")
 
-    - name: ccache cache files for BornAgain
-      uses: actions/cache@v1.1.0
-      with:
-        path: .ccache
-        key: bornagain-ccache-${{ steps.ccache_cache_timestamp.outputs.timestamp }}
-        restore-keys: |
-          bornagain-ccache-
+#    - name: ccache cache files for BornAgain
+#      uses: actions/cache@v1.1.0
+#      with:
+#        path: .ccache
+#        key: bornagain-ccache-${{ steps.ccache_cache_timestamp.outputs.timestamp }}
+#        restore-keys: |
+#          bornagain-ccache-
 
     - name: Build BornAgain
       env:
@@ -72,8 +72,9 @@ jobs:
         git checkout develop
         mkdir build && cd build
 
-        cmake -DCMAKE_INSTALL_PREFIX=/usr/local -DCMAKE_C_COMPILER_LAUNCHER=ccache \
-          -DCMAKE_CXX_COMPILER_LAUNCHER=ccache ../
+        cmake -DCMAKE_INSTALL_PREFIX=/usr/local ../
+#        cmake -DCMAKE_INSTALL_PREFIX=/usr/local -DCMAKE_C_COMPILER_LAUNCHER=ccache \
+#          -DCMAKE_CXX_COMPILER_LAUNCHER=ccache ../
         make -j4
         sudo make install
 
