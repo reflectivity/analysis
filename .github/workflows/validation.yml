@@ -9,39 +9,112 @@ on:
     - cron:  '0 0 * * *'
 
 jobs:
-  validate_linux:
+  validate_refnx:
 
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
+#    strategy:
+#      max-parallel: 3
+#      matrix:
+#        python-version: [3.8]
+
+    steps:
+      - uses: actions/checkout@v1
+
+      #    - name: Set up Python ${{ matrix.python-version }}
+      #      uses: actions/setup-python@v1
+      #      with:
+      #        python-version: ${{ matrix.python-version }}
+
+      - name: setup apt dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends python3-dev python3-pip python3-venv build-essential
+
+      - name: Install Python packages
+        run: |
+          python3 -m venv validate
+          source validate/bin/activate
+
+          python3 -m pip install --upgrade pip
+          python3 -m pip install wheel setuptools
+          python3 -m pip install numpy scipy cython pytest black pyopencl
+          python3 -m pip install refnx
+
+      - name: Validate
+        run: |
+          source validate/bin/activate
+          # run validation via pytest (for Python packages)
+          pytest validation/scripts/test_refnx.py
+
+          # check that the test files have good style
+          black --check -l 80 validation/scripts/*.py
+
+
+  validate_ref1d:
+
+    runs-on: ubuntu-20.04
+
+    steps:
+      - uses: actions/checkout@v1
+
+      - name: setup apt dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends python3-dev python3-pip python3-venv build-essential
+
+      - name: Install Python packages
+        run: |
+          python3 -m venv validate
+          source validate/bin/activate
+
+          python3 -m pip install --upgrade pip
+          python3 -m pip install wheel setuptools
+          python3 -m pip install numpy scipy cython pytest
+          # install refl1d from source (because the last release requires
+          # wxpython which requires a lot of time to build, the git repo doesn't
+          # at time of writing)
+          python3 -m pip install git+https://github.com/reflectometry/refl1d.git
+
+      - name: Validate
+        run: |
+          source validate/bin/activate
+          # run validation via pytest (for Python packages)
+          pytest validation/scripts/test_refl1d.py
+
+
+  validate_bornagain:
+
+    runs-on: ubuntu-20.04
     strategy:
       max-parallel: 3
-      matrix:
-        python-version: [3.7]
 
     steps:
     - uses: actions/checkout@v1
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v1
-      with:
-        python-version: ${{ matrix.python-version }}
 
     - name: setup apt dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -y build-essential\
+        #        sudo add-apt-repository ppa:deadsnakes/ppa
+        #        sudo apt-get install -y --no-install-recommends python${{ matrix.python-version }}-dev python${{ matrix.python-version }}-distutils
+        #        PATH="/usr/local/bin:${PATH}"
+        #        PYLOC=`which python${{ matrix.python-version }}`
+        #        sudo ln -s $PYLOC /usr/local/bin/python3
+
+        sudo apt-get install -y --no-install-recommends python3-dev python3-pip python3-venv
+
+        sudo apt-get install -y --no-install-recommends build-essential \
           gfortran cmake libgsl-dev libboost-all-dev libfftw3-dev libtiff5-dev \
           qt5-default libqt5designercomponents5 qttools5-dev libqt5svg5-dev \
-          ccache
+          ccache libqt5opengl5-dev
 
     - name: Install Python packages
       run: |
-        python -m pip install --upgrade pip
-        python -m pip install wheel setuptools
-        python -m pip install numpy scipy cython pytest black pyopencl
-        python -m pip install refnx
-        # install refl1d from source (because the last release requires
-        # wxpython which requires a lot of time to build, the git repo doesn't
-        # at time of writing)
-        python -m pip install git+https://github.com/reflectometry/refl1d.git
+        python3 -m venv validate
+        source validate/bin/activate
+
+        python3 -m pip install --upgrade pip
+        python3 -m pip install wheel setuptools
+        python3 -m pip install numpy scipy cython pytest
 
     # use ccache for building BornAgain, might save time
     - name: Prepare ccache timestamp
@@ -66,11 +139,12 @@ jobs:
         CCACHE_COMPRESSLEVEL: "6"
         CCACHE_MAXSIZE: "400M"
       run: |
-        cd $HOME
+        source validate/bin/activate
+
         git clone --recursive https://github.com/scgmlz/BornAgain.git
-        cd BornAgain
+        pushd BornAgain
         git checkout develop
-        mkdir build && cd build
+        mkdir build && pushd build
 
         cmake -DCMAKE_INSTALL_PREFIX=/usr/local -DCMAKE_C_COMPILER_LAUNCHER=ccache \
           -DCMAKE_CXX_COMPILER_LAUNCHER=ccache ../
@@ -80,15 +154,12 @@ jobs:
         # print statistics for ccache
         ccache -s
 
-        cd $HOME
-        sudo rm -rf BornAgain
         cd $GITHUB_WORKSPACE
+        sudo rm -rf BornAgain
 
     - name: Validate
       run: |
+        source validate/bin/activate
         source /usr/local/bin/thisbornagain.sh
         # run validation via pytest (for Python packages)
-        pytest validation/scripts
-
-        # check that the test files have good style
-        black --check -l 80 validation/scripts/*.py
+        pytest validation/scripts/test_bornagain.py
