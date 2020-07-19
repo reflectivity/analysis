@@ -106,7 +106,7 @@ jobs:
         sudo apt-get install -y --no-install-recommends build-essential \
           gfortran cmake ccache \
           libgsl-dev libboost-all-dev libfftw3-dev libtiff5-dev libcerf-dev libeigen3-dev \
-          qt5-default libqt5designercomponents5 qttools5-dev libqt5svg5-dev
+          qt5-default libqt5designercomponents5 qttools5-dev libqt5svg5-dev libqt5opengl5-dev
 
     - name: Install Python packages
       run: |
@@ -142,9 +142,8 @@ jobs:
       run: |
         source validate/bin/activate
 
-        git clone https://github.com/scgmlz/BornAgain.git
+        git clone --single-branch --branch develop https://github.com/scgmlz/BornAgain.git
         pushd BornAgain
-        git checkout develop
         mkdir build && pushd build
 
         cmake -DCMAKE_INSTALL_PREFIX=/usr/local -DCMAKE_C_COMPILER_LAUNCHER=ccache \
