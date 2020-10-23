@@ -1,4 +1,5 @@
 import itertools
+import warnings
 import pytest
 import numpy as np
 from test_discovery import get_test_data
@@ -35,12 +36,10 @@ def test_refl1d(nsd, backend):
 
     if data.shape[1] == 4:
         # resolution smeared
-        if backend == abeles.refl:
+        if backend == reflectivity_amplitude:
             # no way of setting backend for resolution smearing tests
-            pass
+            return
 
-        # TODO, when QProbe gets oversampling
-        pytest.xfail("refl1d QProbe does not have oversample")
         resolution_test(slabs, data)
     elif data.shape[1] < 4:
         # no resolution data, just test kernel
@@ -80,11 +79,31 @@ def resolution_test(slabs, data):
         stk |= m(thickness=slab[0], interface=slab[-1])
 
     probe = QProbe(Q=data[:, 0], dQ=data[:, 3])
-    # TODO, oversample when QProbe can do that
+    probe.oversample(21, seed=1)
 
-    M = Experiment(stk, probe)
-    _, R = M.reflectivity()
-    np.testing.assert_allclose(R, data[:, 1], rtol=0.03)
+    try:
+        M = Experiment(stk, probe)
+        _, R = M.reflectivity()
+        np.testing.assert_allclose(R, data[:, 1], rtol=0.033)
+    except AssertionError:
+        # Probe oversampling did not work.
+        # make our own oversampling with a linearly spaced array
+        warnings.warn(
+            "QProbe oversampling didn't work. Trying linearly spaced points",
+            RuntimeWarning,
+        )
+        argmin = np.argmin(data[:, 0])
+        argmax = np.argmax(data[:, 0])
+
+        probe.calc_Qo = np.linspace(
+            data[argmin, 0] - 3.5 * data[argmin, 3],
+            data[argmax, 0] + 3.5 * data[argmax, 3],
+            21 * len(data),
+        )
+        M = Experiment(stk, probe)
+
+        _, R = M.reflectivity()
+        np.testing.assert_allclose(R, data[:, 1], rtol=0.033)
 
 
 if __name__ == "__main__":
