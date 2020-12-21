@@ -139,6 +139,7 @@ jobs:
         CCACHE_COMPRESS: "true"
         CCACHE_COMPRESSLEVEL: "6"
         CCACHE_MAXSIZE: "400M"
+        QT_QPA_PLATFORM: offscreen
       run: |
         source validate/bin/activate
 
@@ -149,6 +150,7 @@ jobs:
 
         cmake -DCMAKE_INSTALL_PREFIX=/usr/local -DCMAKE_C_COMPILER_LAUNCHER=ccache \
           -DCMAKE_CXX_COMPILER_LAUNCHER=ccache ../
+        make package_source
         make -j4
         sudo make install
 
