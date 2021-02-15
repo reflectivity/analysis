@@ -11,9 +11,11 @@ includes Nevot-Croce roughness terms (see line 55)
 ```
 
 
-## [magnetic_CD_tempered.cc](magnetic_CD_tempered.cc)
-The original library [magnetic.cc](magnetic.cc) re-implements the Fortran algorithm of C. F. Majkrzak and N. F. Berk found in [gepore.f](gepore.f)
+## [magnetic.cc](magnetic.cc)
+The library re-implements the CR4XA 4x4 polarized matrix algorithm (Fortran) of C. F. Majkrzak and N. F. Berk found in [gepore.f](gepore.f)
 
-The matrix was reformulated in [magnetic_CD_tempered.cc](magnetic_CD_tempered.cc) to avoid issues that occur when the magnetic field has a significant non-zero out-of-plane component 
+The matrix was reformulated in 2014 to avoid issues that occur when the magnetic field has a significant non-zero out-of-plane component 
 (divide-by-zero in some of the terms).  The details can be found in https://scripts.iucr.org/cgi-bin/paper?ge5021 and the new kernel is stable for all
 values of vector B (magnitude and direction), and takes into account the Zeeman splitting.
+
+It also includes Nevot-Croce roughness terms, similar to the unpolarized kernel.
