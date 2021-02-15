@@ -1,6 +1,6 @@
 # refnx calculation kernels
 Performant kernels for unpolarised reflectivity calculation (polarisation is on
-the way).
+the way). All kernels are unit tested for correctness.
 
 Pulled from https://github.com/refnx/refnx.git 2021-02-16
 
