@@ -97,7 +97,7 @@ def kernel_test(slabs, data, backend):
         # depends on numerical convolution scheme
         np.testing.assert_allclose(R, data[:, 1], rtol=0.001)
     else:
-        np.testing.assert_allclose(R, data[:, 1], rtol=8e-5)
+        np.testing.assert_allclose(R, data[:, 1], rtol=0.001)
 
 
 if __name__ == "__main__":
