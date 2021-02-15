@@ -8,7 +8,36 @@ on:
   schedule:
     - cron:  '0 0 * * 1'
 
+
 jobs:
+  lint:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: setup apt dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends python3-dev \
+            python3-pip python3-venv
+
+      - name: Install Python packages
+        run: |
+          python3 -m venv validate
+          source validate/bin/activate
+
+          python3 -m pip install --upgrade pip
+          python3 -m pip install wheel setuptools
+          python3 -m pip install black
+
+      - name: Validate
+        run: |
+          source validate/bin/activate
+
+          # check that the test files have good style
+          black --check -l 80 validation/scripts/*.py
+
+
   validate_refnx:
 
     runs-on: ubuntu-20.04
@@ -46,9 +75,6 @@ jobs:
           source validate/bin/activate
           # run validation via pytest (for Python packages)
           pytest validation/scripts/test_refnx.py
-
-          # check that the test files have good style
-          black --check -l 80 validation/scripts/*.py
 
 
   validate_ref1d:
