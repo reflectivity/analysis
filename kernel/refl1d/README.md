@@ -12,10 +12,12 @@ includes Nevot-Croce roughness terms (see line 55)
 
 
 ## [magnetic.cc](magnetic.cc)
-The library re-implements the CR4XA 4x4 polarized matrix algorithm (Fortran) of C. F. Majkrzak and N. F. Berk found in [gepore.f](gepore.f)
+The library re-implements the CR4XA 4x4 polarized matrix algorithm (Fortran) of C. F. Majkrzak and N. F. Berk found in [gepore.f](gepore.f) [1]
 
 The matrix was reformulated in 2014 to avoid issues that occur when the magnetic field has a significant non-zero out-of-plane component 
 (divide-by-zero in some of the terms).  The details can be found in https://scripts.iucr.org/cgi-bin/paper?ge5021 and the new kernel is stable for all
 values of vector B (magnitude and direction), and takes into account the Zeeman splitting.
 
 It also includes Nevot-Croce roughness terms, similar to the unpolarized kernel.
+
+[1] “Polarized Neutron Reflectometry”, C.F.Majkrzak, K.V.O'Donovan, and N.F.Berk, Chapter 9 in Neutron Scattering from Magnetic Materials, Edited by T.Chatterji, (Elsevier, Amsterdam, 2006) p.397-471
