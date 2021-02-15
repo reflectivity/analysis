@@ -5,10 +5,11 @@ import numpy as np
 from test_discovery import get_test_data
 
 import genx.models.spec_nx as model
-    
-# abeles.refl is a Python calculator, reflectivity_amplitude uses
-# a C extension
-backends = ['neutron pol']#, 'neutron pol spin-flip'] requires fix in GenX to including non-air ambient layer
+
+# enumerate backends
+# 'neutron pol spin-flip' requires fix in GenX to including non-air ambient
+# layer
+backends = ["neutron pol"]
 tests_backends = list(itertools.product(get_test_data(), backends))
 ids = [f"{t[0][0]}-{t[1]}" for t in tests_backends]
 
@@ -16,7 +17,7 @@ ids = [f"{t[0][0]}-{t[1]}" for t in tests_backends]
 @pytest.mark.parametrize("nsd, backend", tests_backends, ids=ids)
 def test_genx(nsd, backend):
     """
-    Run validation for refl1d.
+    Run validation for genx.
 
     Parameters
     ----------
@@ -37,7 +38,7 @@ def test_genx(nsd, backend):
 
 def kernel_test(slabs, data, backend):
     """
-    Test the reflectivity kernels for ref1d.
+    Test the reflectivity kernels for genx.
 
     Parameters
     ----------
@@ -48,40 +49,57 @@ def kernel_test(slabs, data, backend):
     backend: {parratt, matrix}
         function for reflectance calculation
     """
-    Q=data[:, 0]
-    
-    layers=[]
+    Q = data[:, 0]
+
+    layers = []
     for thickness, rsld, isld, sigma in slabs:
-        layers.append(model.Layer(b=(rsld-1j*isld), dens=0.1, 
-                      d=thickness, sigma=sigma))
+        layers.append(
+            model.Layer(
+                b=(rsld - 1j * isld), dens=0.1, d=thickness, sigma=sigma
+            )
+        )
     layers.reverse()
-    stack=model.Stack(Layers=list(layers[1:-1]), Repetitions = 1)
-    sample=model.Sample(Stacks = [stack ], Ambient = layers[-1], Substrate = layers[0])
-    #print(sample)
-    
-    inst = model.Instrument(probe=backend, wavelength=1.54, coords='q', I0=1, 
-        res=0, restype='no conv', respoints=5, resintrange=2, 
-        beamw=0.1, footype='no corr', samplelen=10, 
-        pol='uu')
-    if data.shape[1]==4:
-        dQ=data[:,3]
-        inst.restype='full conv and varying res.'
-        inst.res=dQ
-        inst.respoints=10001 # try to use same convolution as ref1d when generating
-        inst.resintrange=3.5
-    
-    #print(inst)
+    stack = model.Stack(Layers=list(layers[1:-1]), Repetitions=1)
+    sample = model.Sample(
+        Stacks=[stack], Ambient=layers[-1], Substrate=layers[0]
+    )
+    # print(sample)
+
+    inst = model.Instrument(
+        probe=backend,
+        wavelength=1.54,
+        coords="q",
+        I0=1,
+        res=0,
+        restype="no conv",
+        respoints=5,
+        resintrange=2,
+        beamw=0.1,
+        footype="no corr",
+        samplelen=10,
+        pol="uu",
+    )
+    if data.shape[1] == 4:
+        dQ = data[:, 3]
+        inst.restype = "full conv and varying res."
+        inst.res = dQ
+        inst.respoints = (
+            10001  # try to use same convolution as ref1d when generating
+        )
+        inst.resintrange = 3.5
+
+    # print(inst)
     R = sample.SimSpecular(Q, inst)
 
     assert R.shape == data[:, 1].shape
-    if data.shape[1]==4:
-        # validation accuracy is reduced for resolution runs, as strongly depends on numerical convolution scheme
+    if data.shape[1] == 4:
+        # validation accuracy is reduced for resolution runs, as strongly
+        # depends on numerical convolution scheme
         np.testing.assert_allclose(R, data[:, 1], rtol=0.001)
     else:
         np.testing.assert_allclose(R, data[:, 1], rtol=0.001)
 
 
-
 if __name__ == "__main__":
     for nsd, backend in tests_backends:
-        test_refl1d(nsd, backend)
+        test_genx(nsd, backend)
