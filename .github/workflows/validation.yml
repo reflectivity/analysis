@@ -170,7 +170,7 @@ jobs:
         source validate/bin/activate
 
         git clone --single-branch --branch develop https://jugit.fz-juelich.de/mlz/bornagain.git
-        pushd BornAgain
+        pushd bornagain
         git submodule update
         mkdir build && pushd build
 
