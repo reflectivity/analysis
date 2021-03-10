@@ -169,8 +169,8 @@ jobs:
       run: |
         source validate/bin/activate
 
-        git clone --single-branch --branch develop https://github.com/scgmlz/BornAgain.git
-        pushd BornAgain
+        git clone --single-branch --branch develop https://jugit.fz-juelich.de/mlz/bornagain.git
+        pushd bornagain
         git submodule update
         mkdir build && pushd build
 
