@@ -1,0 +1,1270 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "$id": "refl1d-draft-01",
+  "title": "FitProblem",
+  "description": "    *models* is a sequence of :class:`Experiment` instances.\n\n    *weights* is an optional scale factor for each model\n\n    *freevars* is :class:`.parameter.FreeVariables` instance defining the\n    per-model parameter assignments.  See :ref:`freevariables` for details.\n\n\nAdditional parameters:\n\n    *name* name of the problem\n\n    *constraints* is a list of Constraint objects, which have a method to\n    calculate the nllf for that constraint. \n    Also supports an alternate form which cannot be serialized:\n    A function which returns the negative log likelihood\n    of seeing the parameters independent from the fitness function.  Use\n    this for example to check for feasible regions of the search space, or\n    to add constraints that cannot be easily calculated per parameter.\n    Ideally, the constraints nllf will increase as you go farther from\n    the feasible region so that the fit will be directed toward feasible\n    values.\n\n    *penalty_nllf* is the nllf to use for *fitness* when *constraints*\n    or model parameter bounds are not satisfied.\n\nTotal nllf is the sum of the parameter nllf, the constraints nllf and the\ndepending on whether constraints is greater than soft_limit, either the\nfitness nllf or the penalty nllf.",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string"
+    },
+    "models": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/Experiment"
+      }
+    },
+    "freevars": {
+      "$ref": "#/definitions/FreeVariables"
+    },
+    "weights": {
+      "anyOf": [
+        {
+          "type": "array",
+          "items": {
+            "type": "number"
+          }
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "constraints": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/Constraint"
+      }
+    },
+    "penalty_nllf": {
+      "default": "inf",
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "enum": [
+            "inf"
+          ],
+          "type": "string"
+        }
+      ]
+    },
+    "type": {
+      "enum": [
+        "FitProblem"
+      ],
+      "type": "string"
+    }
+  },
+  "required": [
+    "models"
+  ],
+  "definitions": {
+    "Variable": {
+      "title": "Variable",
+      "description": "Saved state for a random variable in the model.",
+      "type": "object",
+      "properties": {
+        "value": {
+          "type": "number"
+        },
+        "type": {
+          "enum": [
+            "Variable"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "value"
+      ]
+    },
+    "Operators": {
+      "title": "Operators",
+      "description": "Operators that can be used to construct Expressions ",
+      "enum": [
+        "neg",
+        "pos",
+        "add",
+        "sub",
+        "mul",
+        "div",
+        "intdiv",
+        "pow",
+        "abs",
+        "exp",
+        "expm1",
+        "log",
+        "log10",
+        "log1p",
+        "sqrt",
+        "degrees",
+        "radians",
+        "sin",
+        "cos",
+        "tan",
+        "arcsin",
+        "arccos",
+        "arctan",
+        "sinh",
+        "cosh",
+        "tanh",
+        "arcsinh",
+        "arccosh",
+        "arctanh",
+        "ceil",
+        "floor",
+        "trunc",
+        "rint",
+        "round",
+        "arctan2",
+        "min",
+        "max"
+      ],
+      "type": "string"
+    },
+    "Expression": {
+      "title": "Expression",
+      "description": "Parameter expression",
+      "type": "object",
+      "properties": {
+        "op": {
+          "$ref": "#/definitions/Operators"
+        },
+        "args": {
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/definitions/Expression"
+              },
+              {
+                "$ref": "#/definitions/Parameter"
+              },
+              {
+                "type": "number"
+              }
+            ]
+          }
+        },
+        "type": {
+          "enum": [
+            "Expression"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "op",
+        "args"
+      ]
+    },
+    "Uniform": {
+      "title": "Uniform",
+      "description": "Uniform distribution with hard boundaries ",
+      "type": "object",
+      "properties": {
+        "type": {
+          "enum": [
+            "Uniform"
+          ],
+          "type": "string"
+        }
+      }
+    },
+    "Normal": {
+      "title": "Normal",
+      "description": "Normal distribution (Gaussian) ",
+      "type": "object",
+      "properties": {
+        "std": {
+          "description": "standard deviation (1-sigma)",
+          "type": "number"
+        },
+        "mean": {
+          "description": "center of the distribution",
+          "type": "number"
+        },
+        "type": {
+          "enum": [
+            "Normal"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "std",
+        "mean"
+      ]
+    },
+    "Parameter": {
+      "title": "Parameter",
+      "description": "Saved state for a slot in the parameter model.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "default": 0,
+          "type": "integer"
+        },
+        "name": {
+          "type": "string"
+        },
+        "fixed": {
+          "default": true,
+          "type": "boolean"
+        },
+        "slot": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Variable"
+            },
+            {
+              "$ref": "#/definitions/Expression"
+            },
+            {
+              "$ref": "#/definitions/Parameter"
+            },
+            {
+              "type": "number"
+            }
+          ]
+        },
+        "limits": {
+          "default": [
+            "-inf",
+            "inf"
+          ],
+          "type": "array",
+          "items": [
+            {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "enum": [
+                    "-inf"
+                  ],
+                  "type": "string"
+                }
+              ]
+            },
+            {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "enum": [
+                    "inf"
+                  ],
+                  "type": "string"
+                }
+              ]
+            }
+          ]
+        },
+        "bounds": {
+          "type": "array",
+          "items": [
+            {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "enum": [
+                    "-inf"
+                  ],
+                  "type": "string"
+                }
+              ]
+            },
+            {
+              "anyOf": [
+                {
+                  "type": "number"
+                },
+                {
+                  "enum": [
+                    "inf"
+                  ],
+                  "type": "string"
+                }
+              ]
+            }
+          ]
+        },
+        "distribution": {
+          "default": {
+            "type": "Uniform"
+          },
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Uniform"
+            },
+            {
+              "$ref": "#/definitions/Normal"
+            }
+          ]
+        },
+        "type": {
+          "enum": [
+            "Parameter"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "slot"
+      ]
+    },
+    "Magnetism": {
+      "title": "Magnetism",
+      "description": "Region of constant magnetism.\n\n*rhoM* is the magnetic SLD the layer. Default is :code:`rhoM=0`.\n\n*thetaM* is the magnetic angle for the layer. Default is :code:`thetaM=270`.\n\n*name* is the base name for the various layer parameters.\n\n*extent* defines the number of nuclear layers covered by the magnetic layer.\n\n*dead_above* and *dead_below* define magnetically dead layers at the\nnuclear boundaries.  These can be negative if magnetism extends beyond\nthe nuclear boundary.\n\n*interface_above* and *interface_below* define the magnetic interface\nat the boundaries, if it is different from the nuclear interface.",
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "extent": {
+          "type": "number"
+        },
+        "dead_below": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Parameter"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "dead_above": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Parameter"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "interface_below": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Parameter"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "interface_above": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Parameter"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "type": {
+          "enum": [
+            "Magnetism"
+          ],
+          "type": "string"
+        },
+        "rhoM": {
+          "$ref": "#/definitions/Parameter"
+        },
+        "thetaM": {
+          "$ref": "#/definitions/Parameter"
+        }
+      },
+      "required": [
+        "name",
+        "extent",
+        "dead_below",
+        "dead_above",
+        "interface_below",
+        "interface_above",
+        "rhoM",
+        "thetaM"
+      ]
+    },
+    "MagnetismStack": {
+      "title": "MagnetismStack",
+      "description": "Magnetic slabs within a magnetic layer.\n\n*weight* is the relative thickness of each layer relative to the nuclear\nstack to which it is anchored.  Weights are automatically normalized to 1.\nDefault is :code:`weight=[1]` equal size layers.\n\n*rhoM* is the magnetic SLD for each layer. Default is :code:`rhoM=[0]`\nfor shared magnetism in all the layers.\n\n*thetaM* is the magnetic angle for each layer.  Default is\n:code:`thetaM=[270]` for no magnetic twist.\n\n**Not yet implemented.**\n*interfaceM* is the magnetic interface for all but the last layer.  Default\nis :code:`interfaceM=[0]` for equal width interfaces in all layers.\n\n*name* is the base name for the various layer parameters.\n\n*extent* defines the number of nuclear layers covered by the magnetic layer.\n\n*dead_above* and *dead_below* define magnetically dead layers at the\nnuclear boundaries.  These can be negative if magnetism extends beyond\nthe nuclear boundary.\n\n*interface_above* and *interface_below* define the magnetic interface\nat the boundaries, if it is different from the nuclear interface.",
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "extent": {
+          "type": "number"
+        },
+        "dead_below": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Parameter"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "dead_above": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Parameter"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "interface_below": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Parameter"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "interface_above": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Parameter"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "type": {
+          "enum": [
+            "MagnetismStack"
+          ],
+          "type": "string"
+        },
+        "weight": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Parameter"
+          }
+        },
+        "rhoM": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Parameter"
+          }
+        },
+        "thetaM": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Parameter"
+          }
+        }
+      },
+      "required": [
+        "name",
+        "extent",
+        "dead_below",
+        "dead_above",
+        "interface_below",
+        "interface_above",
+        "weight",
+        "rhoM",
+        "thetaM"
+      ]
+    },
+    "MagnetismTwist": {
+      "title": "MagnetismTwist",
+      "description": "Linear change in magnetism throughout layer.\n\n*rhoM* contains the *(left, right)* values for the magnetic scattering\nlength density.  The number of steps is determined by the model *dz*.\n\n*thetaM* contains the *(left, right)* values for the magnetic angle.\n\n*name* is the base name for the various layer parameters.\n\n*extent* defines the number of nuclear layers covered by the magnetic layer.\n\n*dead_above* and *dead_below* define magnetically dead layers at the\nnuclear boundaries.  These can be negative if magnetism extends beyond\nthe nuclear boundary.\n\n*interface_above* and *interface_below* define the magnetic interface\nat the boundaries, if it is different from the nuclear interface.",
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "extent": {
+          "type": "number"
+        },
+        "dead_below": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Parameter"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "dead_above": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Parameter"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "interface_below": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Parameter"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "interface_above": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Parameter"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "type": {
+          "enum": [
+            "MagnetismTwist"
+          ],
+          "type": "string"
+        },
+        "rhoM": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Parameter"
+          }
+        },
+        "thetaM": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Parameter"
+          }
+        }
+      },
+      "required": [
+        "name",
+        "extent",
+        "dead_below",
+        "dead_above",
+        "interface_below",
+        "interface_above",
+        "rhoM",
+        "thetaM"
+      ]
+    },
+    "FreeMagnetism": {
+      "title": "FreeMagnetism",
+      "description": "Spline change in magnetism throughout layer.\n\nDefines monotonic splines for rhoM and thetaM with shared knot positions.\n\n*z* is position of the knot in [0, 1] relative to the magnetic layer\nthickness.  The *z* coordinates are automatically sorted before\nrendering, leading to multiple equivalent solutions if knots are swapped.\n\n*rhoM* gives the magnetic scattering length density for each knot.\n\n*thetaM* gives the magnetic angle for each knot.\n\n*name* is the base name for the various layer parameters.\n\n*dead_above* and *dead_below* define magnetically dead layers at the\nnuclear boundaries.  These can be negative if magnetism extends beyond\nthe nuclear boundary.\n\n*interface_above* and *interface_below* define the magnetic interface\nat the boundaries, if it is different from the nuclear interface.",
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "extent": {
+          "type": "number"
+        },
+        "dead_below": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Parameter"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "dead_above": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Parameter"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "interface_below": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Parameter"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "interface_above": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Parameter"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "type": {
+          "enum": [
+            "FreeMagnetism"
+          ],
+          "type": "string"
+        },
+        "z": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Parameter"
+          }
+        },
+        "rhoM": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Parameter"
+          }
+        },
+        "thetaM": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Parameter"
+          }
+        }
+      },
+      "required": [
+        "name",
+        "extent",
+        "dead_below",
+        "dead_above",
+        "interface_below",
+        "interface_above",
+        "z",
+        "rhoM",
+        "thetaM"
+      ]
+    },
+    "SLD": {
+      "title": "SLD",
+      "description": "Unknown composition.\n\nUse this when you don't know the composition of the sample.  The\nabsorption and scattering length density are stored directly rather\nthan trying to guess at the composition from details about the sample.\n\nThe complex scattering potential is defined by $\\rho + j \\rho_i$.\nNote that this differs from $\\rho + j \\mu/(2 \\lambda)$ more\ntraditionally used in neutron reflectometry, and $N r_e (f_1 + j f_2)$\ntraditionally used in X-ray reflectometry.\n\nGiven that $f_1$ and $f_2$ are always wavelength dependent for X-ray\nreflectometry, it will not make much sense to uses this for wavelength\nvarying X-ray measurements.  Similarly, some isotopes, particularly\nrare earths, show wavelength dependence for neutrons, and so\ntime-of-flight measurements should not be fit with a fixed SLD scatterer.",
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "rho": {
+          "$ref": "#/definitions/Parameter"
+        },
+        "irho": {
+          "$ref": "#/definitions/Parameter"
+        },
+        "type": {
+          "enum": [
+            "SLD"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "rho",
+        "irho"
+      ]
+    },
+    "Material": {
+      "title": "Material",
+      "description": "Description of a solid block of material.\n\n:Parameters:\n    *formula* : Formula\n\n        Composition can be initialized from either a string or a chemical\n        formula.  Valid values are defined in periodictable.formula.\n\n    *density* : float | |g/cm^3|\n\n        If specified, set the bulk density for the material.\n\n    *natural_density* : float | |g/cm^3|\n\n        If specified, set the natural bulk density for the material.\n\n    *use_incoherent* = False : boolean\n\n        True if incoherent scattering should be interpreted as absorption.\n\n    *fitby* = 'bulk_density' : string\n\n        Which density parameter is the fitting parameter.  The choices\n        are *bulk_density*, *natural_density*, *relative_density* or\n        *cell_volume*.  See :meth:`fitby` for details.\n\n    *value* : Parameter or float | units depends on fitby type\n\n        Initial value for the fitted density parameter.  If None, the\n        value will be initialized from the material density.\n\nFor example, to fit Pd by cell volume use::\n\n    >>> m = Material('Pd', fitby='cell_volume')\n    >>> m.cell_volume.range(1, 10)\n    Parameter(Pd cell volume)\n    >>> print(\"%.2f %.2f\"%(m.density.value, m.cell_volume.value))\n    12.02 14.70\n\nYou can change density representation by calling *material.fitby(type)*.",
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "formula": {
+          "type": "string"
+        },
+        "formula_density": {
+          "type": "number"
+        },
+        "formula_natural_density": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "density": {
+          "$ref": "#/definitions/Expression"
+        },
+        "value": {
+          "$ref": "#/definitions/Parameter"
+        },
+        "fitby": {
+          "default": "bulk_density",
+          "enum": [
+            "bulk_density",
+            "number_density",
+            "natural_density",
+            "relative_density",
+            "cell_volume"
+          ],
+          "type": "string"
+        },
+        "use_incoherent": {
+          "default": false,
+          "type": "boolean"
+        },
+        "type": {
+          "enum": [
+            "Material"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "formula",
+        "formula_density",
+        "formula_natural_density",
+        "density",
+        "value"
+      ]
+    },
+    "Vacuum": {
+      "title": "Vacuum",
+      "description": "Empty layer (all sld = 0)",
+      "type": "object",
+      "properties": {
+        "type": {
+          "enum": [
+            "Vacuum"
+          ],
+          "type": "string"
+        }
+      }
+    },
+    "Slab": {
+      "title": "Slab",
+      "description": "A block of material.",
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "thickness": {
+          "$ref": "#/definitions/Parameter"
+        },
+        "interface": {
+          "$ref": "#/definitions/Parameter"
+        },
+        "magnetism": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/definitions/Magnetism"
+            },
+            {
+              "$ref": "#/definitions/MagnetismStack"
+            },
+            {
+              "$ref": "#/definitions/MagnetismTwist"
+            },
+            {
+              "$ref": "#/definitions/FreeMagnetism"
+            }
+          ]
+        },
+        "material": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/SLD"
+            },
+            {
+              "$ref": "#/definitions/Material"
+            },
+            {
+              "$ref": "#/definitions/Vacuum"
+            }
+          ]
+        },
+        "type": {
+          "enum": [
+            "Slab"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "thickness",
+        "magnetism",
+        "material"
+      ]
+    },
+    "Repeat": {
+      "title": "Repeat",
+      "description": "Repeat a layer or stack.\n\nIf an interface parameter is provide, the roughness between the\nmultilayers may be different from the roughness between the repeated\nstack and the following layer.\n\nNote: Repeat is not a type of Stack, but it does have a stack inside.",
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "interface": {
+          "$ref": "#/definitions/Parameter"
+        },
+        "magnetism": {
+          "anyOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/definitions/Magnetism"
+            },
+            {
+              "$ref": "#/definitions/MagnetismStack"
+            },
+            {
+              "$ref": "#/definitions/MagnetismTwist"
+            },
+            {
+              "$ref": "#/definitions/FreeMagnetism"
+            }
+          ]
+        },
+        "repeat": {
+          "$ref": "#/definitions/Parameter"
+        },
+        "stack": {
+          "$ref": "#/definitions/Stack"
+        },
+        "thickness": {
+          "$ref": "#/definitions/Parameter"
+        },
+        "type": {
+          "enum": [
+            "Repeat"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "magnetism",
+        "repeat",
+        "stack",
+        "thickness"
+      ]
+    },
+    "Stack": {
+      "title": "Stack",
+      "description": "Reflectometry layer stack\n\nA reflectometry sample is defined by a stack of layers. Each layer\nhas an interface describing how the top of the layer interacts with\nthe bottom of the overlaying layer. The stack may contain",
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "interface": {},
+        "layers": {
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/definitions/Slab"
+              },
+              {
+                "$ref": "#/definitions/Repeat"
+              }
+            ]
+          }
+        },
+        "type": {
+          "enum": [
+            "Stack"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "layers"
+      ]
+    },
+    "Probe": {
+      "title": "Probe",
+      "description": "Defines the incident beam used to study the material.\n\nFor calculation purposes, probe needs to return the values $Q_\\text{calc}$\nat which the model is evaluated.  This is normally going to be the measured\npoints only, but for some systems, such as those with very thick layers,\noversampling is needed to avoid aliasing effects.\n\nA measurement point consists of incident angle, angular resolution,\nincident wavelength, FWHM wavelength resolution, reflectivity and\nuncertainty in reflectivity.\n\nA probe is a set of points, defined by vectors for point attribute.  For\nconvenience, the attribute can be initialized with a scalar if it is\nconstant throughout the measurement, but will be set to a vector in\nthe probe.  The attributes are initialized as follows:\n\n    *T* : float or [float] | degrees\n        Incident angle\n    *dT* : float or [float] | degrees\n        FWHM angular divergence\n    *L* : float or [float] | |Ang|\n        Incident wavelength\n    *dL* : float or [float] | |Ang|\n        FWHM wavelength dispersion\n    *data* : ([float], [float])\n        R, dR reflectivity measurement and uncertainty\n    *dQ* : [float] or None | |1/Ang|\n        1-\\$sigma$ Q resolution when it cannot be computed directly\n        from angular divergence and wavelength dispersion.\n    *resolution* : 'normal' or 'uniform'\n        Distribution function for Q resolution.\n\nMeasurement properties:\n\n    *intensity* : float or Parameter\n       Beam intensity\n    *background* : float or Parameter\n       Constant background\n    *back_absorption* : float or Parameter\n       Absorption through the substrate relative to beam intensity.\n       A value of 1.0 means complete transmission; a value of 0.0\n       means complete absorption.\n    *theta_offset* : float or Parameter\n       Offset of the sample from perfect alignment\n    *sample_broadening* : float or Parameter\n       Additional FWHM angular divergence from sample curvature.\n       Scale 1-$\\sigma$ rms by $2 \\surd(2 \\ln 2) \\approx 2.35$ to convert\n       to FWHM.\n    *back_reflectivity* : True or False\n       True if the beam enters through the substrate\n\nMeasurement properties are fittable parameters.  *theta_offset* in\nparticular should be set using *probe.theta_offset.dev(dT)*, with *dT*\nequal to the FWHM uncertainty in the peak position for the rocking curve,\nas measured in radians. Changes to *theta_offset* will then be penalized\nin the cost function for the fit as if it were another measurement.  Use\n:meth:`alignment_uncertainty` to compute dT from the shape of the\nrocking curve.\n\nSample broadening adjusts the existing Q resolution rather than\nrecalculating it. This allows it the resolution to describe more\ncomplicated effects than a simple gaussian distribution of wavelength\nand angle will allow. The calculation uses the mean wavelength, angle\nand angular divergence. See :func:`resolution.dQ_broadening` for details.\n\n*intensity* and *back_absorption* are generally not needed --- scaling\nthe reflected signal by an appropriate intensity measurement will correct\nfor both of these during reduction.  *background* may be needed,\nparticularly for samples with significant hydrogen content due to its\nlarge isotropic incoherent scattering cross section.",
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "filename": {
+          "type": "string"
+        },
+        "radiation": {
+          "default": "xray",
+          "enum": [
+            "neutron",
+            "xray"
+          ],
+          "type": "string"
+        },
+        "intensity": {
+          "default": 1.0,
+          "allOf": [
+            {
+              "$ref": "#/definitions/Parameter"
+            }
+          ]
+        },
+        "background": {
+          "default": 0,
+          "allOf": [
+            {
+              "$ref": "#/definitions/Parameter"
+            }
+          ]
+        },
+        "back_absorption": {
+          "default": 0,
+          "allOf": [
+            {
+              "$ref": "#/definitions/Parameter"
+            }
+          ]
+        },
+        "theta_offset": {
+          "default": 0,
+          "allOf": [
+            {
+              "$ref": "#/definitions/Parameter"
+            }
+          ]
+        },
+        "sample_broadening": {
+          "default": 0,
+          "allOf": [
+            {
+              "$ref": "#/definitions/Parameter"
+            }
+          ]
+        },
+        "back_reflectivity": {
+          "default": false,
+          "type": "boolean"
+        },
+        "R": {},
+        "dR": {
+          "default": 0
+        },
+        "T": {
+          "description": "List of theta values (incident angle)",
+          "type": "array",
+          "items": {
+            "type": "number"
+          }
+        },
+        "dT": {
+          "default": 0
+        },
+        "L": {
+          "description": "List of lambda values (wavelength, in Angstroms)",
+          "type": "array",
+          "items": {
+            "type": "number"
+          }
+        },
+        "dL": {
+          "default": 0
+        },
+        "dQ": {},
+        "resolution": {
+          "default": "uniform",
+          "enum": [
+            "normal",
+            "uniform"
+          ],
+          "type": "string"
+        },
+        "type": {
+          "enum": [
+            "Probe"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "T",
+        "L"
+      ]
+    },
+    "PolarizedNeutronProbe": {
+      "title": "PolarizedNeutronProbe",
+      "description": "Polarized neutron probe\n\n*xs* (4 x NeutronProbe) is a sequence pp, pm, mp and mm.\n\n*Aguide* (degrees) is the angle of the applied field relative\nto the plane of the sample, with angle 270\u00ba in the plane of the sample.\n\n*H* (tesla) is the magnitude of the applied field",
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "mm": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Probe"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "mp": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Probe"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "pm": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Probe"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "pp": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Probe"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "H": {
+          "$ref": "#/definitions/Parameter"
+        },
+        "Aguide": {
+          "$ref": "#/definitions/Parameter"
+        },
+        "type": {
+          "enum": [
+            "PolarizedNeutronProbe"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "mm",
+        "mp",
+        "pm",
+        "pp",
+        "H",
+        "Aguide"
+      ]
+    },
+    "Experiment": {
+      "title": "Experiment",
+      "description": "Theory calculator.  Associates sample with data, Sample plus data.\nAssociate sample with measurement.\n\nThe model calculator is specific to the particular measurement technique\nthat was applied to the model.\n\nMeasurement properties:\n\n    *probe* is the measuring probe\n\nSample properties:\n\n    *sample* is the model sample\n    *step_interfaces* use slabs to approximate gaussian interfaces\n    *roughness_limit* limit the roughness based on layer thickness\n    *dz* minimum step size for computed profile steps in Angstroms\n    *dA* discretization condition for computed profiles\n\nIf *step_interfaces* is True, then approximate the interface using\nmicroslabs with step size *dz*.  The microslabs extend throughout\nthe whole profile, both the interfaces and the bulk; a value\nfor *dA* should be specified to save computation time.  If False, then\nuse the Nevot-Croce analytic expression for the interface between slabs.\n\nThe *roughness_limit* value should be reasonably large (e.g., 2.5 or above)\nto make sure that the Nevot-Croce reflectivity calculation matches the\ncalculation of the displayed profile.  Use a value of 0 if you want no\nlimits on the roughness,  but be aware that the displayed profile may\nnot reflect the actual scattering densities in the material.\n\nThe *dz* step size sets the size of the slabs for non-uniform profiles.\nUsing the relation d = 2 pi / Q_max,  we use a default step size of d/20\nrounded to two digits, with 5 |Ang| as the maximum default.  For\nsimultaneous fitting you may want to set *dz* explicitly using to\nround(pi/Q_max/10, 1) so that all models use the same step size.\n\nThe *dA* condition measures the uncertainty in scattering materials\nallowed when combining the steps of a non-uniform profile into slabs.\nSpecifically, the area of the box containing the minimum and the\nmaximum of the non-uniform profile within the slab will be smaller\nthan *dA*.  A *dA* of 10 gives coarse slabs.  If *dA* is not provided\nthen each profile step forms its own slab.  The *dA* condition will\nalso apply to the slab approximation to the interfaces.\n\n*interpolation* indicates the number of points to plot in between\nexisting points.\n\n*smoothness* **DEPRECATED** This parameter is not used.",
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "sample": {
+          "$ref": "#/definitions/Stack"
+        },
+        "probe": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Probe"
+            },
+            {
+              "$ref": "#/definitions/PolarizedNeutronProbe"
+            }
+          ]
+        },
+        "roughness_limit": {
+          "type": "number"
+        },
+        "dz": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "dA": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "step_interfaces": {
+          "type": "boolean"
+        },
+        "interpolation": {
+          "default": 0,
+          "type": "number"
+        },
+        "type": {
+          "enum": [
+            "Experiment"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "sample",
+        "roughness_limit",
+        "dz",
+        "dA",
+        "step_interfaces"
+      ]
+    },
+    "ParameterSet": {
+      "title": "ParameterSet",
+      "description": "A parameter that depends on the model.",
+      "type": "object",
+      "properties": {
+        "names": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "reference": {
+          "$ref": "#/definitions/Parameter"
+        },
+        "parameterList": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Parameter"
+          }
+        },
+        "type": {
+          "enum": [
+            "ParameterSet"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "names",
+        "reference",
+        "parameterList"
+      ]
+    },
+    "FreeVariables": {
+      "title": "FreeVariables",
+      "description": "A collection of parameter sets for a group of models.\n\n*names* is the set of model names.\n\nThe parameters themselves are specified as key=value pairs, with key\nbeing the attribute name which is used to retrieve the parameter set\nand value being a :class:`Parameter` containing the parameter that is\nshared between the models.\n\nIn order to evaluate the log likelihood of all models simultaneously,\nthe fitting program will need to call set_model with the model index\nfor each model in turn in order to substitute the values from the free\nvariables into the model.  This allows us to share a common sample\nacross multiple data sets, with each dataset having its own values for\nsome of the sample parameters.  The alternative is to copy the entire\nsample structure, sharing references to common parameters and creating\nnew parameters for each model for the free parameters.  Setting up\nthese copies was inconvenient.",
+      "type": "object",
+      "properties": {
+        "names": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "parametersets": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/ParameterSet"
+          }
+        },
+        "type": {
+          "enum": [
+            "FreeVariables"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "names",
+        "parametersets"
+      ]
+    },
+    "Comparisons": {
+      "title": "Comparisons",
+      "description": "comparison operators",
+      "enum": [
+        ">",
+        ">=",
+        "<=",
+        "<"
+      ]
+    },
+    "Constraint": {
+      "title": "Constraint",
+      "description": "Express inequality constraints between model elements ",
+      "type": "object",
+      "properties": {
+        "op": {
+          "$ref": "#/definitions/Comparisons"
+        },
+        "a": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Parameter"
+            },
+            {
+              "$ref": "#/definitions/Expression"
+            },
+            {
+              "type": "number"
+            }
+          ]
+        },
+        "b": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Parameter"
+            },
+            {
+              "$ref": "#/definitions/Expression"
+            },
+            {
+              "type": "number"
+            }
+          ]
+        },
+        "type": {
+          "enum": [
+            "Constraint"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "op",
+        "a",
+        "b"
+      ]
+    }
+  }
+}
