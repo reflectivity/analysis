@@ -1,0 +1,22 @@
+channels:
+  - conda-forge
+dependencies:
+  - python==3.9
+  - pip:
+    - refnx
+    - refl1d
+    - bumps
+    - tqdm
+    - corner
+    - periodictable
+    - scipy
+    - numpy
+    - pandas
+    - h5py
+    - ipywidgets
+    - setuptools
+    - cython
+    - jupyter
+    - matplotlib
+    - xlrd
+
