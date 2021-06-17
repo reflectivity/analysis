@@ -124,6 +124,25 @@
       ],
       "type": "string"
     },
+    "Calculation": {
+      "title": "Calculation",
+      "description": "A Parameter with a model-specific, calculated value.\nThe function used to calculate this value should be well-documented in the \ndescription field, e.g. \n  Stack.thickness: description = \"a sum of the thicknesses of all layers in the stack\"",
+      "type": "object",
+      "properties": {
+        "description": {
+          "type": "string"
+        },
+        "type": {
+          "enum": [
+            "Calculation"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "description"
+      ]
+    },
     "Expression": {
       "title": "Expression",
       "description": "Parameter expression",
@@ -141,6 +160,9 @@
               },
               {
                 "$ref": "#/definitions/Parameter"
+              },
+              {
+                "$ref": "#/definitions/Calculation"
               },
               {
                 "type": "number"
@@ -204,8 +226,8 @@
       "type": "object",
       "properties": {
         "id": {
-          "default": 0,
-          "type": "integer"
+          "format": "uuid",
+          "type": "string"
         },
         "name": {
           "type": "string"
@@ -224,6 +246,9 @@
             },
             {
               "$ref": "#/definitions/Parameter"
+            },
+            {
+              "$ref": "#/definitions/Calculation"
             },
             {
               "type": "number"
@@ -309,6 +334,10 @@
             }
           ]
         },
+        "discrete": {
+          "default": false,
+          "type": "boolean"
+        },
         "type": {
           "enum": [
             "Parameter"
@@ -317,12 +346,13 @@
         }
       },
       "required": [
+        "id",
         "slot"
       ]
     },
-    "Magnetism": {
-      "title": "Magnetism",
-      "description": "Region of constant magnetism.\n\n*rhoM* is the magnetic SLD the layer. Default is :code:`rhoM=0`.\n\n*thetaM* is the magnetic angle for the layer. Default is :code:`thetaM=270`.\n\n*name* is the base name for the various layer parameters.\n\n*extent* defines the number of nuclear layers covered by the magnetic layer.\n\n*dead_above* and *dead_below* define magnetically dead layers at the\nnuclear boundaries.  These can be negative if magnetism extends beyond\nthe nuclear boundary.\n\n*interface_above* and *interface_below* define the magnetic interface\nat the boundaries, if it is different from the nuclear interface.",
+    "BaseMagnetism": {
+      "title": "BaseMagnetism",
+      "description": "Magnetic properties of the layer.\n\nMagnetism is attached to set of nuclear layers by setting the\n*magnetism* property of the first layer to the rendered for the\nmagnetic profile, and setting *extent* to the number of nuclear\nlayers attached to the magnetism object.\n\n*dead_below* and *dead_above* are dead regions within the magnetic\nextent, which allow you to shift the magnetic interfaces relative\nto the nuclear interfaces.\n\n*interface_below* and *interface_above* are the interface widths\nfor the magnetic layer, which default to the interface widths for\nthe corresponding nuclear layers if no interfaces are specified.\nFor consecutive layers, only *interface_above* is used; any value\nfor *interface_below* is ignored.",
       "type": "object",
       "properties": {
         "name": {
@@ -373,15 +403,9 @@
         },
         "type": {
           "enum": [
-            "Magnetism"
+            "BaseMagnetism"
           ],
           "type": "string"
-        },
-        "rhoM": {
-          "$ref": "#/definitions/Parameter"
-        },
-        "thetaM": {
-          "$ref": "#/definitions/Parameter"
         }
       },
       "required": [
@@ -390,266 +414,7 @@
         "dead_below",
         "dead_above",
         "interface_below",
-        "interface_above",
-        "rhoM",
-        "thetaM"
-      ]
-    },
-    "MagnetismStack": {
-      "title": "MagnetismStack",
-      "description": "Magnetic slabs within a magnetic layer.\n\n*weight* is the relative thickness of each layer relative to the nuclear\nstack to which it is anchored.  Weights are automatically normalized to 1.\nDefault is :code:`weight=[1]` equal size layers.\n\n*rhoM* is the magnetic SLD for each layer. Default is :code:`rhoM=[0]`\nfor shared magnetism in all the layers.\n\n*thetaM* is the magnetic angle for each layer.  Default is\n:code:`thetaM=[270]` for no magnetic twist.\n\n**Not yet implemented.**\n*interfaceM* is the magnetic interface for all but the last layer.  Default\nis :code:`interfaceM=[0]` for equal width interfaces in all layers.\n\n*name* is the base name for the various layer parameters.\n\n*extent* defines the number of nuclear layers covered by the magnetic layer.\n\n*dead_above* and *dead_below* define magnetically dead layers at the\nnuclear boundaries.  These can be negative if magnetism extends beyond\nthe nuclear boundary.\n\n*interface_above* and *interface_below* define the magnetic interface\nat the boundaries, if it is different from the nuclear interface.",
-      "type": "object",
-      "properties": {
-        "name": {
-          "type": "string"
-        },
-        "extent": {
-          "type": "number"
-        },
-        "dead_below": {
-          "anyOf": [
-            {
-              "$ref": "#/definitions/Parameter"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
-        "dead_above": {
-          "anyOf": [
-            {
-              "$ref": "#/definitions/Parameter"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
-        "interface_below": {
-          "anyOf": [
-            {
-              "$ref": "#/definitions/Parameter"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
-        "interface_above": {
-          "anyOf": [
-            {
-              "$ref": "#/definitions/Parameter"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
-        "type": {
-          "enum": [
-            "MagnetismStack"
-          ],
-          "type": "string"
-        },
-        "weight": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/Parameter"
-          }
-        },
-        "rhoM": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/Parameter"
-          }
-        },
-        "thetaM": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/Parameter"
-          }
-        }
-      },
-      "required": [
-        "name",
-        "extent",
-        "dead_below",
-        "dead_above",
-        "interface_below",
-        "interface_above",
-        "weight",
-        "rhoM",
-        "thetaM"
-      ]
-    },
-    "MagnetismTwist": {
-      "title": "MagnetismTwist",
-      "description": "Linear change in magnetism throughout layer.\n\n*rhoM* contains the *(left, right)* values for the magnetic scattering\nlength density.  The number of steps is determined by the model *dz*.\n\n*thetaM* contains the *(left, right)* values for the magnetic angle.\n\n*name* is the base name for the various layer parameters.\n\n*extent* defines the number of nuclear layers covered by the magnetic layer.\n\n*dead_above* and *dead_below* define magnetically dead layers at the\nnuclear boundaries.  These can be negative if magnetism extends beyond\nthe nuclear boundary.\n\n*interface_above* and *interface_below* define the magnetic interface\nat the boundaries, if it is different from the nuclear interface.",
-      "type": "object",
-      "properties": {
-        "name": {
-          "type": "string"
-        },
-        "extent": {
-          "type": "number"
-        },
-        "dead_below": {
-          "anyOf": [
-            {
-              "$ref": "#/definitions/Parameter"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
-        "dead_above": {
-          "anyOf": [
-            {
-              "$ref": "#/definitions/Parameter"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
-        "interface_below": {
-          "anyOf": [
-            {
-              "$ref": "#/definitions/Parameter"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
-        "interface_above": {
-          "anyOf": [
-            {
-              "$ref": "#/definitions/Parameter"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
-        "type": {
-          "enum": [
-            "MagnetismTwist"
-          ],
-          "type": "string"
-        },
-        "rhoM": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/Parameter"
-          }
-        },
-        "thetaM": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/Parameter"
-          }
-        }
-      },
-      "required": [
-        "name",
-        "extent",
-        "dead_below",
-        "dead_above",
-        "interface_below",
-        "interface_above",
-        "rhoM",
-        "thetaM"
-      ]
-    },
-    "FreeMagnetism": {
-      "title": "FreeMagnetism",
-      "description": "Spline change in magnetism throughout layer.\n\nDefines monotonic splines for rhoM and thetaM with shared knot positions.\n\n*z* is position of the knot in [0, 1] relative to the magnetic layer\nthickness.  The *z* coordinates are automatically sorted before\nrendering, leading to multiple equivalent solutions if knots are swapped.\n\n*rhoM* gives the magnetic scattering length density for each knot.\n\n*thetaM* gives the magnetic angle for each knot.\n\n*name* is the base name for the various layer parameters.\n\n*dead_above* and *dead_below* define magnetically dead layers at the\nnuclear boundaries.  These can be negative if magnetism extends beyond\nthe nuclear boundary.\n\n*interface_above* and *interface_below* define the magnetic interface\nat the boundaries, if it is different from the nuclear interface.",
-      "type": "object",
-      "properties": {
-        "name": {
-          "type": "string"
-        },
-        "extent": {
-          "type": "number"
-        },
-        "dead_below": {
-          "anyOf": [
-            {
-              "$ref": "#/definitions/Parameter"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
-        "dead_above": {
-          "anyOf": [
-            {
-              "$ref": "#/definitions/Parameter"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
-        "interface_below": {
-          "anyOf": [
-            {
-              "$ref": "#/definitions/Parameter"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
-        "interface_above": {
-          "anyOf": [
-            {
-              "$ref": "#/definitions/Parameter"
-            },
-            {
-              "type": "null"
-            }
-          ]
-        },
-        "type": {
-          "enum": [
-            "FreeMagnetism"
-          ],
-          "type": "string"
-        },
-        "z": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/Parameter"
-          }
-        },
-        "rhoM": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/Parameter"
-          }
-        },
-        "thetaM": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/Parameter"
-          }
-        }
-      },
-      "required": [
-        "name",
-        "extent",
-        "dead_below",
-        "dead_above",
-        "interface_below",
-        "interface_above",
-        "z",
-        "rhoM",
-        "thetaM"
+        "interface_above"
       ]
     },
     "SLD": {
@@ -704,7 +469,7 @@
           ]
         },
         "density": {
-          "$ref": "#/definitions/Expression"
+          "$ref": "#/definitions/Parameter"
         },
         "value": {
           "$ref": "#/definitions/Parameter"
@@ -768,23 +533,7 @@
           "$ref": "#/definitions/Parameter"
         },
         "magnetism": {
-          "anyOf": [
-            {
-              "type": "null"
-            },
-            {
-              "$ref": "#/definitions/Magnetism"
-            },
-            {
-              "$ref": "#/definitions/MagnetismStack"
-            },
-            {
-              "$ref": "#/definitions/MagnetismTwist"
-            },
-            {
-              "$ref": "#/definitions/FreeMagnetism"
-            }
-          ]
+          "$ref": "#/definitions/BaseMagnetism"
         },
         "material": {
           "anyOf": [
@@ -809,7 +558,6 @@
       "required": [
         "name",
         "thickness",
-        "magnetism",
         "material"
       ]
     },
@@ -825,23 +573,7 @@
           "$ref": "#/definitions/Parameter"
         },
         "magnetism": {
-          "anyOf": [
-            {
-              "type": "null"
-            },
-            {
-              "$ref": "#/definitions/Magnetism"
-            },
-            {
-              "$ref": "#/definitions/MagnetismStack"
-            },
-            {
-              "$ref": "#/definitions/MagnetismTwist"
-            },
-            {
-              "$ref": "#/definitions/FreeMagnetism"
-            }
-          ]
+          "$ref": "#/definitions/BaseMagnetism"
         },
         "repeat": {
           "$ref": "#/definitions/Parameter"
@@ -861,7 +593,6 @@
       },
       "required": [
         "name",
-        "magnetism",
         "repeat",
         "stack",
         "thickness"
@@ -869,13 +600,15 @@
     },
     "Stack": {
       "title": "Stack",
-      "description": "Reflectometry layer stack\n\nA reflectometry sample is defined by a stack of layers. Each layer\nhas an interface describing how the top of the layer interacts with\nthe bottom of the overlaying layer. The stack may contain",
+      "description": "Reflectometry layer stack\n\nA reflectometry sample is defined by a stack of layers. Each layer\nhas an interface describing how the top of the layer interacts with\nthe bottom of the overlaying layer. The stack may contain Slab or Repeats.",
       "type": "object",
       "properties": {
         "name": {
           "type": "string"
         },
-        "interface": {},
+        "interface": {
+          "type": "null"
+        },
         "layers": {
           "type": "array",
           "items": {
@@ -889,6 +622,14 @@
             ]
           }
         },
+        "thickness": {
+          "description": "always equals the sum of the layer thicknesses",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Parameter"
+            }
+          ]
+        },
         "type": {
           "enum": [
             "Stack"
@@ -898,7 +639,9 @@
       },
       "required": [
         "name",
-        "layers"
+        "interface",
+        "layers",
+        "thickness"
       ]
     },
     "Probe": {
@@ -1072,10 +815,6 @@
       },
       "required": [
         "name",
-        "mm",
-        "mp",
-        "pm",
-        "pp",
         "H",
         "Aguide"
       ]
@@ -1161,7 +900,7 @@
         "reference": {
           "$ref": "#/definitions/Parameter"
         },
-        "parameterList": {
+        "parameterlist": {
           "type": "array",
           "items": {
             "$ref": "#/definitions/Parameter"
@@ -1177,7 +916,7 @@
       "required": [
         "names",
         "reference",
-        "parameterList"
+        "parameterlist"
       ]
     },
     "FreeVariables": {
@@ -1236,6 +975,9 @@
               "$ref": "#/definitions/Expression"
             },
             {
+              "$ref": "#/definitions/Calculation"
+            },
+            {
               "type": "number"
             }
           ]
@@ -1247,6 +989,9 @@
             },
             {
               "$ref": "#/definitions/Expression"
+            },
+            {
+              "$ref": "#/definitions/Calculation"
             },
             {
               "type": "number"
