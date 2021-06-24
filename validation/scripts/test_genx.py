@@ -9,7 +9,7 @@ import genx.models.spec_nx as model
 # enumerate backends
 # 'neutron pol spin-flip' requires fix in GenX to including non-air ambient
 # layer
-backends = ["neutron pol"]
+backends = ["neutron pol", "neutron pol spin flip"]
 tests_backends = list(itertools.product(get_test_data(), backends))
 ids = [f"{t[0][0]}-{t[1]}" for t in tests_backends]
 
@@ -83,9 +83,11 @@ def kernel_test(slabs, data, backend):
         dQ = data[:, 3]
         inst.restype = "full conv and varying res."
         inst.res = dQ
-        inst.respoints = (
-            10001  # try to use same convolution as ref1d when generating
-        )
+        if backend=='neutron pol spin flip':
+            # memory issues in matrix formalism if too many data points
+            inst.respoints = 101
+        else:
+            inst.respoints = 10001  # try to use same convolution as ref1d when generating
         inst.resintrange = 3.5
 
     # print(inst)
@@ -95,7 +97,10 @@ def kernel_test(slabs, data, backend):
     if data.shape[1] == 4:
         # validation accuracy is reduced for resolution runs, as strongly
         # depends on numerical convolution scheme
-        np.testing.assert_allclose(R, data[:, 1], rtol=0.001)
+        if backend=='neutron pol spin flip':
+            np.testing.assert_allclose(R, data[:, 1], rtol=0.005)
+        else:
+            np.testing.assert_allclose(R, data[:, 1], rtol=0.001)
     else:
         np.testing.assert_allclose(R, data[:, 1], rtol=0.001)
 
