@@ -83,11 +83,13 @@ def kernel_test(slabs, data, backend):
         dQ = data[:, 3]
         inst.restype = "full conv and varying res."
         inst.res = dQ
-        if backend=='neutron pol spin flip':
+        if backend == "neutron pol spin flip":
             # memory issues in matrix formalism if too many data points
             inst.respoints = 101
         else:
-            inst.respoints = 10001  # try to use same convolution as ref1d when generating
+            inst.respoints = (
+                10001  # try to use same convolution as ref1d when generating
+            )
         inst.resintrange = 3.5
 
     # print(inst)
@@ -97,7 +99,7 @@ def kernel_test(slabs, data, backend):
     if data.shape[1] == 4:
         # validation accuracy is reduced for resolution runs, as strongly
         # depends on numerical convolution scheme
-        if backend=='neutron pol spin flip':
+        if backend == "neutron pol spin flip":
             np.testing.assert_allclose(R, data[:, 1], rtol=0.005)
         else:
             np.testing.assert_allclose(R, data[:, 1], rtol=0.001)
