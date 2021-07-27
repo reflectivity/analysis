@@ -36,7 +36,6 @@ def kernel_test(slabs, data):
     q = data[:, 0]
     R = data[:, 1]
 
-    project = "none"
     patches = [1.0]
     LayerMatrix = []
     for i, layer in enumerate(slabs):
