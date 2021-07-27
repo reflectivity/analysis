@@ -25,18 +25,12 @@ def test_anaklasis(nsd):
 
     if data.shape[1] == 4:
         resolution_test(slabs, data)
-        pass
     elif data.shape[1] < 4:
         # no resolution data, just test kernel
         kernel_test(slabs, data)
 
 
-def kernel_test(slabs, data):
-    # test unsmeared reflectivity calculation
-    q = data[:, 0]
-    R = data[:, 1]
-
-    patches = [1.0]
+def anaklasis_layer_matrix(slabs):
     LayerMatrix = []
     for i, layer in enumerate(slabs):
         # layer = thickness, re, im, roughness
@@ -57,8 +51,18 @@ def kernel_test(slabs, data):
                 0.0,
             ]
         )
+    return LayerMatrix
 
-    # system = [LayerMatrix]
+
+def kernel_test(slabs, data):
+    # test unsmeared reflectivity calculation
+    q = data[:, 0]
+    R = data[:, 1]
+
+    patches = [1.0]
+    layer_matrix = anaklasis_layer_matrix(slabs)
+
+    # system = [layer_matrix]
     # result = ref.calculate(
     #     "none",
     #     [0.0], patches, system, [], [0], [1.0], [np.max(q)]
@@ -69,12 +73,23 @@ def kernel_test(slabs, data):
     #   - there is no public API to calculate reflectivity with anaklasis
     #   - not clear what LayerMatrix layout is supposed to be
     #   - Reflectivity function is not properly documented
-    tmp = ref.Reflectivity(q, dq, [LayerMatrix], [0], 0, 1, patches, 1)
+    tmp = ref.Reflectivity(q, dq, [layer_matrix], 0, 0, 1, patches, 1)
     np.testing.assert_allclose(tmp[:, 1], R, rtol=8e-5)
 
 
 def resolution_test(slabs, data):
-    pass
+    # test unsmeared reflectivity calculation
+    q = data[:, 0]
+    R = data[:, 1]
+    # dq is a standard deviation
+    dq = data[:, 3]
+
+    patches = [1.0]
+    layer_matrix = anaklasis_layer_matrix(slabs)
+
+    use_dq = 1
+    tmp = ref.Reflectivity(q, dq, [layer_matrix], use_dq, 0, 1, patches, 1)
+    np.testing.assert_allclose(tmp[:, 1], R, rtol=0.03)
 
 
 if __name__ == "__main__":
