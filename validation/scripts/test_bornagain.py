@@ -43,7 +43,7 @@ def get_simulation(qzs):
     with a qz-defined beam
     """
     # bornagain requires Qz in nm
-    scan = ba.QSpecScan(qzs * 10.0)
+    scan = ba.QzScan(qzs * 10.0)
     simulation = ba.SpecularSimulation()
     simulation.setScan(scan)
     return simulation
@@ -59,7 +59,7 @@ def get_simulation_smeared(qzs, dqzs):
     n_samples = 21
     distr = ba.RangedDistributionGaussian(n_samples, n_sig)
 
-    scan = ba.QSpecScan(qzs * 10.0)
+    scan = ba.QzScan(qzs * 10.0)
     scan.setAbsoluteQResolution(distr, dqzs * 10.0)
 
     simulation = ba.SpecularSimulation()
