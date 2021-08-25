@@ -81,13 +81,13 @@ def resolution_test(slabs, data):
     # test unsmeared reflectivity calculation
     q = data[:, 0]
     R = data[:, 1]
-    # dq is a standard deviation
-    dq = data[:, 3]
+    # dq is a standard deviation but with anaklasis dQ represents the FWHM
+    dq = data[:, 3] * 2 * np.sqrt(2 * np.log(2))
 
     patches = [1.0]
     layer_matrix = anaklasis_layer_matrix(slabs)
 
-    use_dq = 1
+    use_dq = -1
     tmp = ref.Reflectivity(q, dq, [layer_matrix], use_dq, 0, 1, patches, 1)
     np.testing.assert_allclose(tmp[:, 1], R, rtol=0.03)
 
