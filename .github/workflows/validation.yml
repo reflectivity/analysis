@@ -39,7 +39,6 @@ jobs:
 
 
   validate_refnx:
-
     runs-on: ubuntu-20.04
 #    strategy:
 #      max-parallel: 3
@@ -78,7 +77,6 @@ jobs:
 
 
   validate_ref1d:
-
     runs-on: ubuntu-20.04
 
     steps:
@@ -110,7 +108,6 @@ jobs:
 
 
   validate_bornagain:
-
     runs-on: ubuntu-20.04
     strategy:
       max-parallel: 3
@@ -193,8 +190,8 @@ jobs:
         # run validation via pytest (for Python packages)
         pytest validation/scripts/test_bornagain.py
 
-  validate_genx:
 
+  validate_genx:
     runs-on: ubuntu-20.04
 
     steps:
@@ -222,3 +219,31 @@ jobs:
           # run validation via pytest (for Python packages)
           pytest validation/scripts/test_genx.py
 
+
+  validate_anaklasis:
+    runs-on: ubuntu-20.04
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: setup apt dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends python3-dev python3-pip python3-venv build-essential
+
+      - name: Install Python packages
+        run: |
+          python3 -m venv validate
+          source validate/bin/activate
+
+          python3 -m pip install --upgrade pip
+          python3 -m pip install wheel setuptools
+          python3 -m pip install numpy scipy pytest
+          # install anaklasis from source
+          python3 -m pip install git+git://github.com/alexandros-koutsioumpas/anaklasis.git
+
+      - name: Validate
+        run: |
+          source validate/bin/activate
+          # run validation via pytest (for Python packages)
+          pytest validation/scripts/test_anaklasis.py
