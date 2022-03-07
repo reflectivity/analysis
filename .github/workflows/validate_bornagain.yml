@@ -68,12 +68,6 @@ jobs:
         make -j4
         sudo make install
 
-        # print statistics for ccache
-        ccache -s
-
-        cd $GITHUB_WORKSPACE
-        sudo rm -rf BornAgain
-
     - name: Validate
       run: |
         source /usr/local/bin/thisbornagain.sh
