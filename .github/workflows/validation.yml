@@ -131,6 +131,24 @@ jobs:
           libgsl-dev libboost-all-dev libfftw3-dev libtiff5-dev libcerf-dev libeigen3-dev \
           qt5-default libqt5designercomponents5 qttools5-dev libqt5svg5-dev libqt5opengl5-dev libx11-xcb1
 
+    - name: install own dependency LibHeinz
+      run: |
+        git clone https://jugit.fz-juelich.de/mlz/libheinz.git
+        pushd libheinz
+        mkdir build && pushd build
+        cmake ..
+        make
+        sudo make install
+
+    - name: install own dependency LibFormFactor
+      run: |
+        git clone https://jugit.fz-juelich.de/mlz/libformfactor.git
+        pushd libformfactor
+        mkdir build && pushd build
+        cmake ..
+        make
+        sudo make install
+
     - name: Install Python packages
       run: |
         python3 -m venv validate
