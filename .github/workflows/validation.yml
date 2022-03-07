@@ -211,7 +211,7 @@ jobs:
           python3 -m pip install wheel setuptools
           python3 -m pip install numpy scipy pytest numba
           # install genx from source
-          python3 -m pip install git+git://git.code.sf.net/p/genx/git#subdirectory=genx
+          python3 -m pip install genx3server
 
       - name: Validate
         run: |
