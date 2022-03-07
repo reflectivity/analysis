@@ -1,0 +1,41 @@
+name: Validation workflow
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+  schedule:
+    - cron:  '0 0 * * 1'
+
+
+jobs:
+  validate_ref1d:
+    runs-on: ubuntu-20.04
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: setup apt dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends python3-dev python3-pip python3-venv build-essential
+
+      - name: Install Python packages
+        run: |
+          python3 -m venv validate
+          source validate/bin/activate
+
+          python3 -m pip install --upgrade pip
+          python3 -m pip install wheel setuptools
+          python3 -m pip install numpy scipy cython pytest
+          # install refl1d from source (because the last release requires
+          # wxpython which requires a lot of time to build, the git repo doesn't
+          # at time of writing)
+          python3 -m pip install git+https://github.com/reflectometry/refl1d.git
+
+      - name: Validate
+        run: |
+          source validate/bin/activate
+          # run validation via pytest (for Python packages)
+          pytest validation/scripts/test_refl1d.py
