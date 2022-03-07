@@ -156,7 +156,7 @@ jobs:
 
         python3 -m pip install --upgrade pip
         python3 -m pip install wheel setuptools
-        python3 -m pip install numpy scipy cython pytest
+        python3 -m pip install numpy scipy cython pytest matplotlib
 
     # use ccache for building BornAgain, might save time
     - name: Prepare ccache timestamp
