@@ -209,9 +209,9 @@ jobs:
 
           python3 -m pip install --upgrade pip
           python3 -m pip install wheel setuptools
-          python3 -m pip install numpy scipy pytest numba
+          python3 -m pip install numpy scipy pytest numba orsopy requests appdirs h5py
           # install genx from source
-          python3 -m pip install genx3server
+          python3 -m pip install genx3 --no-deps
 
       - name: Validate
         run: |
