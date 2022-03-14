@@ -1,13 +1,19 @@
-name: Validation
+name: ORSO Val. RefNX
 
 on:
   push:
     branches: [ master ]
   pull_request:
+  schedule:
+    - cron:  '0 0 * * 1'
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
 
 jobs:
-  lint:
+  validate_refnx:
     runs-on: ubuntu-20.04
+
     steps:
       - uses: actions/checkout@v2
 
@@ -15,7 +21,7 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends python3-dev \
-            python3-pip python3-venv
+            python3-pip python3-venv build-essential
 
       - name: Install Python packages
         run: |
@@ -24,11 +30,11 @@ jobs:
 
           python3 -m pip install --upgrade pip
           python3 -m pip install wheel setuptools
-          python3 -m pip install black
+          python3 -m pip install numpy scipy cython pytest black
+          python3 -m pip install refnx
 
       - name: Validate
         run: |
           source validate/bin/activate
-
-          # check that the test files have good style
-          black --check -l 80 validation/scripts/*.py
+          # run validation via pytest (for Python packages)
+          pytest validation/scripts/test_refnx.py

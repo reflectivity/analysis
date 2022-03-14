@@ -1,0 +1,40 @@
+name: ORSO Val. GenX
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+  schedule:
+    - cron:  '0 0 * * 1'
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+
+jobs:
+  validate_genx:
+    runs-on: ubuntu-20.04
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: setup apt dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends python3-dev python3-pip python3-venv build-essential
+
+      - name: Install Python packages
+        run: |
+          python3 -m venv validate
+          source validate/bin/activate
+
+          python3 -m pip install --upgrade pip
+          python3 -m pip install wheel setuptools
+          python3 -m pip install numpy scipy pytest numba orsopy requests appdirs h5py
+          # install genx from source
+          python3 -m pip install genx3 --no-deps
+
+      - name: Validate
+        run: |
+          source validate/bin/activate
+          # run validation via pytest (for Python packages)
+          pytest validation/scripts/test_genx.py
