@@ -68,6 +68,8 @@ jobs:
         make -j4
         sudo make install
         find /usr -name libformfactor*
+        printenv
+        cat /etc/ld.so.conf
 
     - name: Validate
       run: |
