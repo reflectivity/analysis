@@ -31,7 +31,7 @@ jobs:
           python3 -m pip install wheel setuptools
           python3 -m pip install numpy scipy pytest
           # install anaklasis from source
-          python3 -m pip install git+git://github.com/alexandros-koutsioumpas/anaklasis.git
+          python3 -m pip install git+https://github.com/alexandros-koutsioumpas/anaklasis.git
 
       - name: Validate
         run: |
