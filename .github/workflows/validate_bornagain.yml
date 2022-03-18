@@ -67,12 +67,10 @@ jobs:
         make package_source
         make -j4
         sudo make install
-        find /usr -name libformfactor*
-        printenv
-        cat /etc/ld.so.conf
 
     - name: Validate
       run: |
         source /usr/local/bin/thisbornagain.sh
+        export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib
         # run validation via pytest (for Python packages)
         python -m pytest validation/scripts/test_bornagain.py
