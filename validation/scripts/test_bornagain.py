@@ -101,8 +101,8 @@ def resolution_test(slabs, data):
     simulation = get_simulation_smeared(data[:, 0], data[:, -1])
     sample = get_sample(slabs)
     simulation.setSample(sample)
-    simulation.runSimulation()
-    R = simulation.result().array()
+    res = simulation.simulate()
+    R = res.array()
 
     assert R.shape == data[:, 1].shape
 
@@ -123,8 +123,8 @@ def kernel_test(slabs, data):
     simulation = get_simulation(data[:, 0])
     sample = get_sample(slabs)
     simulation.setSample(sample)
-    simulation.runSimulation()
-    R = simulation.result().array()
+    res = simulation.simulate()
+    R = res.array()
 
     assert R.shape == data[:, 1].shape
 
