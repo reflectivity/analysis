@@ -23,7 +23,7 @@ jobs:
       run: |
         sudo apt-get update
 
-        sudo apt-get install -y --no-install-recommends python3-dev python3-pip python3-numpy python3-matplotlib
+        sudo apt-get install -y --no-install-recommends python3-dev python3-pip
 
         sudo apt-get install -y --no-install-recommends build-essential \
           gfortran cmake \
@@ -34,6 +34,15 @@ jobs:
       run: |
         git clone https://jugit.fz-juelich.de/mlz/libheinz.git
         pushd libheinz
+        mkdir build && pushd build
+        cmake ..
+        make
+        sudo make install
+
+    - name: install own dependency libcerf
+      run: |
+        git clone https://jugit.fz-juelich.de/mlz/libcerf.git
+        pushd libcerf
         mkdir build && pushd build
         cmake ..
         make
@@ -51,8 +60,8 @@ jobs:
     - name: Install Python packages
       run: |
         python3 -m pip install --upgrade pip
-        python3 -m pip install wheel setuptools
-        python3 -m pip install cython pytest
+        python3 -m pip install cython pytest build wheel setuptools
+        python3 -m pip install numpy matplotlib
 
     - name: Build BornAgain
       env:
@@ -70,7 +79,9 @@ jobs:
 
     - name: Validate
       run: |
-        source /usr/local/bin/thisbornagain.sh
+        # source /usr/local/bin/thisbornagain.sh
+        ls -al /usr/local/bin
         export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib
+        printenv
         # run validation via pytest (for Python packages)
         python -m pytest validation/scripts/test_bornagain.py
