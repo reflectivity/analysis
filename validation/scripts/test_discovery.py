@@ -7,6 +7,9 @@ import numpy as np
 PTH = os.path.join(
     os.path.dirname(os.path.abspath(__file__)), "..", "test", "unpolarised"
 )
+POL_PTH = os.path.join(
+    os.path.dirname(os.path.abspath(__file__)), "..", "test", "polarised"
+)
 
 
 def idfn(val):
@@ -39,33 +42,65 @@ def get_test_data():
 
     for test in tests:
         # layers/data tuples
-        layers, data = get_data(test)
+        layers_file, data_file = get_data(test)
 
-        slabs = np.loadtxt(layers)
+        slabs = np.loadtxt(os.path.join(PTH, layers_file))
         assert slabs.shape[1] == 4
 
-        data = np.loadtxt(data)
+        data = np.loadtxt(os.path.join(PTH, data_file))
         assert data.shape[1] in [2, 3, 4]
 
         yield os.path.basename(test), slabs, data
 
 
 def get_data(file):
-    # for each of the unpolarised test files figure out where the data and
-    # layer parameters are
+    # for each of the test files extract the parameters, 
+    # e.g. the names of the data_file and layers_file
 
-    with open(file, "r") as f:
-        # ignore comment lines starting with # or space
-        while True:
-            line = f.readline()
-            if line.lstrip(" \t").startswith("#"):
-                continue
-            elif line == "\n":
-                continue
-            else:
-                layers = line.rstrip("\n")
-                data = f.readline().rstrip("\n")
+    with open(file, "rt") as f:
+        # ignore comment lines starting with #
+        for line in f:
+            line = line.strip()
+            if not line.startswith("#"):
+                yield line
 
-                layers = os.path.join(PTH, layers)
-                data = os.path.join(PTH, data)
-                return (layers, data)
+
+def get_polarised_test_data():
+    """
+    A generator yielding (slabs, data) tuples.
+
+    `slabs` are np.ndarrays that specify the layer structure of the test.
+    ``slabs.shape = (N + 2, 6)``, where N is the number of layers.
+
+    The layer specification file has the layout:
+
+    # { "AGUIDE": angle_between_Q_and_H }
+    ignored     SLDn_fronting ignored      ignored   ignored ignored
+    thickness_1 SLDn_1        iSLD_1       thetaM_1  SLDm_1  rough_fronting1
+    thickness_2 SLDn_2        iSLD_2       thetaM_2  SLDm_2  rough_12
+    ignored     SLDn_backing  iSLD_backing ignored   ignored rough_backing2
+
+    `data` contains the test reflectivity data. It's an np.ndarray with
+    shape `(M, 5)`, where M is the number of datapoints (with 5 data columns.)
+    The first column contains Q points (reciprocal Angstrom), and the remaining
+    columns correspond to R--, R-+, R+- and R++, where the first +/- corresponds
+    to the polarisation of the incoming beam, and the second to the scattered
+    beam.
+    """
+    # find all the polarised tests in analysis/validation/test/polarised
+    tests = glob.glob(os.path.join(POL_PTH, "*.txt"))
+
+    for test in tests:
+        # layers/data tuples
+        layers_file, data_file, AGUIDE, H = get_data(test)
+
+        slabs = np.loadtxt(os.path.join(POL_PTH, layers_file))
+        assert slabs.shape[1] == 6
+
+        data = np.loadtxt(os.path.join(POL_PTH, data_file))
+        assert data.shape[1] == 5
+
+        AGUIDE = float(AGUIDE)
+        H = float(H)
+
+        yield os.path.basename(test), slabs, data, AGUIDE, H
