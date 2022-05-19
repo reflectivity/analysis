@@ -2,14 +2,13 @@ import pytest
 import numpy as np
 from test_discovery import get_test_data
 
-import bornagain as ba
-from bornagain import angstrom
-
 
 def get_sample(slabs):
     """
     Defines sample and returns it. Note that SLD-based materials are used.
     """
+    import bornagain as ba
+    from bornagain import angstrom
     # creating materials
     multi_layer = ba.MultiLayer()
 
@@ -43,6 +42,7 @@ def get_simulation(qzs):
     with a qz-defined beam
     """
     # bornagain requires Qz in nm
+    import bornagain as ba
     scan = ba.QzScan(qzs * 10.0)
     simulation = ba.SpecularSimulation()
     simulation.setScan(scan)
@@ -55,6 +55,7 @@ def get_simulation_smeared(qzs, dqzs):
     with a qz-defined beam
     """
     # 3.5 sigma to sync with refnx
+    import bornagain as ba
     n_sig = 3.5
     n_samples = 21
     distr = ba.RangedDistributionGaussian(n_samples, n_sig)
@@ -70,7 +71,6 @@ def get_simulation_smeared(qzs, dqzs):
 
 tests = list(get_test_data())
 ids = [f"{t[0]}" for t in tests]
-
 
 @pytest.mark.parametrize("nsd", tests, ids=ids)
 def test_bornagain(nsd):
