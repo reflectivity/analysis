@@ -1,0 +1,8 @@
+# Zeeman splitting of spin-flip: 
+# guide field nearly parallel to Q (5 deg offset)
+layers/test0.layers
+data/test0.dat
+# AGUIDE:
+5
+# H:
+0.244
