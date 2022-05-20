@@ -72,7 +72,7 @@ jobs:
         git submodule update
         mkdir build && pushd build
 
-        cmake -DCMAKE_INSTALL_PREFIX=/usr/local ../
+        cmake -DBA_GUI=0 -DBA_TIFF_SUPPORT=0 -DCMAKE_INSTALL_PREFIX=/usr/local ../
         make package_source
         make -j4
         sudo make install
