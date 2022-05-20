@@ -86,12 +86,16 @@ def kernel_test(test_name, slabs, data, local_nodeenv):
 
 def install_local_nodeenv(path="tmp", version="v16.15.0", clean=False):
     """ returns path to node executable and refl and magrefl node wrappers """
+    current_folder = os.path.dirname(__file__)
+    test_folder = os.path.join(os.path.dirname(current_folder), "test")
     node_path = "node-{version}-linux-x64".format(version=version)
     if clean:
         os.rmtree(path)
-    os.makedirs(os.path.join(path), exist_ok=True)
     
-    node_exe_path = os.path.join(path, node_path, "bin", "node")
+    working_folder = os.path.join(test_folder, path)
+    os.makedirs(working_folder, exist_ok=True)
+    
+    node_exe_path = os.path.join(working_folder, node_path, "bin", "node")
     if not os.path.exists(node_exe_path):
         # print("installing node")
         noderaw = requests.get("https://nodejs.org/dist/{version}/node-{version}-linux-x64.tar.xz".format(version=version))
@@ -99,17 +103,22 @@ def install_local_nodeenv(path="tmp", version="v16.15.0", clean=False):
         nodebytes.seek(0)
     
         with tarfile.open(fileobj=nodebytes) as t:
-            t.extractall(path)
+            t.extractall(working_folder)
     
     magrefl = requests.get("https://raw.githubusercontent.com/usnistgov/reflectometry-calculators/nist-pages/js/refl/magrefl.js")
-    open(os.path.join(path, "magrefl.js"), "wb").write(magrefl.content)
+    open(os.path.join(working_folder, "magrefl.js"), "wb").write(magrefl.content)
     
     refl = requests.get("https://raw.githubusercontent.com/usnistgov/reflectometry-calculators/nist-pages/js/refl/refl.js")
-    open(os.path.join(path, "refl.js"), "wb").write(refl.content)
+    open(os.path.join(working_folder, "refl.js"), "wb").write(refl.content)
     
-    shutil.copy2("scripts/nistweb/magrefl_wrapper.mjs", os.path.join(path, "magrefl_wrapper.mjs"))
-    shutil.copy2("scripts/nistweb/refl_wrapper.mjs", os.path.join(path, "refl_wrapper.mjs"))
-    return os.path.join(path, node_path, "bin", "node"), os.path.join(path, "refl_wrapper.mjs"), os.path.join(path, "magrefl_wrapper.mjs")
+    shutil.copy2(os.path.join(current_folder, "nistweb", "magrefl_wrapper.mjs"), os.path.join(working_folder, "magrefl_wrapper.mjs"))
+    shutil.copy2(os.path.join(current_folder, "nistweb", "refl_wrapper.mjs"), os.path.join(working_folder, "refl_wrapper.mjs"))
+    refl_wrapper_path = os.path.join(working_folder, "refl_wrapper.mjs")
+    magrefl_wrapper_path = os.path.join(working_folder, "magrefl_wrapper.mjs")
+    return node_exe_path, refl_wrapper_path, magrefl_wrapper_path
     
 
-
+if __name__ == "__main__":
+    local_nodeenv = install_local_nodeenv()
+    for nsd in tests:
+        test_nistweb(nsd, local_nodeenv)
