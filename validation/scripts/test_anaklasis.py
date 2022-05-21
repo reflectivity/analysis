@@ -7,6 +7,7 @@ from test_discovery import get_test_data
 tests = list(get_test_data())
 ids = [f"{t[0]}" for t in tests]
 
+
 @pytest.mark.parametrize("nsd", tests, ids=ids)
 def test_anaklasis(nsd):
     """
@@ -55,6 +56,7 @@ def anaklasis_layer_matrix(slabs):
 def kernel_test(slabs, data):
     # test unsmeared reflectivity calculation
     from anaklasis import ref
+
     q = data[:, 0]
     R = data[:, 1]
 
@@ -79,6 +81,7 @@ def kernel_test(slabs, data):
 def resolution_test(slabs, data):
     # test unsmeared reflectivity calculation
     from anaklasis import ref
+
     q = data[:, 0]
     R = data[:, 1]
     # dq is a standard deviation but with anaklasis dQ represents the FWHM
