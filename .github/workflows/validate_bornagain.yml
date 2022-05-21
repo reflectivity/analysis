@@ -75,7 +75,7 @@ jobs:
         cmake -DBA_PY_PACKAGE=ON -DBA_GUI=OFF -DBA_TIFF_SUPPORT=OFF -DCMAKE_INSTALL_PREFIX=/usr/local ../
         make -j4
         pushd PythonPackage/*
-        python3 setup.py install
+        python3 -m pip install .
 
     - name: Validate
       run: |
