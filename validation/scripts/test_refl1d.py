@@ -105,8 +105,13 @@ def resolution_test(slabs, data):
         _, R = M.reflectivity()
         np.testing.assert_allclose(R, data[:, 1], rtol=0.033)
 
-pol_backends = [magnetic_amplitude,]
-pol_tests_backends = list(itertools.product(get_polarised_test_data(), pol_backends))
+
+pol_backends = [
+    magnetic_amplitude,
+]
+pol_tests_backends = list(
+    itertools.product(get_polarised_test_data(), pol_backends)
+)
 pol_ids = [f"{t[0][0]}-{t[1]}" for t in pol_tests_backends]
 
 
@@ -140,17 +145,17 @@ def pol_kernel_test(slabs, data, AGUIDE, H, backend):
     backend: {abeles.refl, reflectivity_amplitude}
         function for reflectance calculation
     """
-    kz = data[:, 0] / 2.0 # = Qz / 2
+    kz = data[:, 0] / 2.0  # = Qz / 2
     rmm, rmp, rpm, rpp = backend(
         kz,
-        slabs[:, 0], # thickness
-        slabs[:, 1], # SLDn
-        irho=slabs[:, 2], # SLDi,
-        thetaM=slabs[:, 3], # thetaM
-        rhoM=slabs[:, 4], # SLDm,
-        sigma=slabs[:-1, 5], # sigma
-        Aguide=AGUIDE, # AGUIDE
-        H=H, # applied field H
+        slabs[:, 0],  # thickness
+        slabs[:, 1],  # SLDn
+        irho=slabs[:, 2],  # SLDi,
+        thetaM=slabs[:, 3],  # thetaM
+        rhoM=slabs[:, 4],  # SLDm,
+        sigma=slabs[:-1, 5],  # sigma
+        Aguide=AGUIDE,  # AGUIDE
+        H=H,  # applied field H
     )
     Rmm, Rmp, Rpm, Rpp = [(r * np.conj(r)).real for r in [rmm, rmp, rpm, rpp]]
     assert Rmm.shape == data[:, 1].shape

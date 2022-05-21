@@ -54,7 +54,7 @@ def get_test_data():
 
 
 def get_data(file):
-    # for each of the test files extract the parameters, 
+    # for each of the test files extract the parameters,
     # e.g. the names of the data_file and layers_file
 
     with open(file, "rt") as f:
