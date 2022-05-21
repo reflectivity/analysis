@@ -73,17 +73,15 @@ jobs:
         mkdir build && pushd build
 
         cmake -DBA_PY_PACKAGE=ON -DBA_GUI=OFF -DBA_TIFF_SUPPORT=OFF -DCMAKE_INSTALL_PREFIX=/usr/local ../
-        make package_source
         make -j4
-        sudo make install
+        pushd PythonPackage/*
+        python3 setup.py install
 
     - name: Validate
       run: |
         # source /usr/local/bin/thisbornagain.sh
         ls -al /usr/local/bin
         export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib
-        # this is fragile: depends on python version installed in ubuntu
-        export PYTHONPATH=$PYTHONPATH:/usr/local/python/3.8/dist-packages
         printenv
         # run validation via pytest (for Python packages)
-        python -m pytest validation/scripts/test_bornagain.py
+        python3 -m pytest validation/scripts/test_bornagain.py
