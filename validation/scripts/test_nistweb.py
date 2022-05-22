@@ -85,30 +85,34 @@ def kernel_test(test_name, slabs, data, local_nodeenv):
     np.testing.assert_allclose(R, data[:, 1], rtol=8e-5)
 
 
-def install_local_nodeenv(path="tmp", version="v16.15.0", clean=False):
+def install_local_nodeenv(path="tmp", version="v16.15.0", clean=False, force_local_node=False):
     """returns path to node executable and refl and magrefl node wrappers"""
     current_folder = os.path.dirname(__file__)
     test_folder = os.path.join(os.path.dirname(current_folder), "test")
-    node_path = "node-{version}-linux-x64".format(version=version)
-    if clean:
-        os.rmtree(path)
-
     working_folder = os.path.join(test_folder, path)
     os.makedirs(working_folder, exist_ok=True)
+    
+    node_exe_path = shutil.which("node")
+    print(f"system node exe: {node_exe_path}")
+    if node_exe_path is None or force_local_node:
+        # then there is no system node installed:
+        node_path = "node-{version}-linux-x64".format(version=version)
+        if clean:
+            os.rmtree(path)
 
-    node_exe_path = os.path.join(working_folder, node_path, "bin", "node")
-    if not os.path.exists(node_exe_path):
-        # print("installing node")
-        noderaw = requests.get(
-            "https://nodejs.org/dist/{version}/node-{version}-linux-x64.tar.xz".format(
-                version=version
+        node_exe_path = os.path.join(working_folder, node_path, "bin", "node")
+        if not os.path.exists(node_exe_path):
+            # print("installing local node")
+            noderaw = requests.get(
+                "https://nodejs.org/dist/{version}/node-{version}-linux-x64.tar.xz".format(
+                    version=version
+                )
             )
-        )
-        nodebytes = io.BytesIO(noderaw.content)
-        nodebytes.seek(0)
+            nodebytes = io.BytesIO(noderaw.content)
+            nodebytes.seek(0)
 
-        with tarfile.open(fileobj=nodebytes) as t:
-            t.extractall(working_folder)
+            with tarfile.open(fileobj=nodebytes) as t:
+                t.extractall(working_folder)
 
     magrefl = requests.get(
         "https://raw.githubusercontent.com/usnistgov/reflectometry-calculators/nist-pages/js/refl/magrefl.js"
