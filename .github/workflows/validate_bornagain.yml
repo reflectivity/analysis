@@ -64,18 +64,18 @@ jobs:
         python3 -m pip install numpy matplotlib
 
     - name: Build BornAgain
-      env:
-        QT_QPA_PLATFORM: offscreen
       run: |
         git clone --depth 1 --single-branch --branch main https://jugit.fz-juelich.de/mlz/bornagain.git
         pushd bornagain
         git submodule update
+        # disable tests, since there is no CMake option to do so:
+        sed -i 's/add_subdirectory(Tests/# add_subdirectory(Tests/g' CMakeLists.txt
         mkdir build && pushd build
 
-        cmake -DCMAKE_INSTALL_PREFIX=/usr/local ../
-        make package_source
+        cmake -DBA_PY_PACKAGE=ON -DBA_GUI=OFF -DBA_TIFF_SUPPORT=OFF -DCMAKE_INSTALL_PREFIX=/usr/local ../
         make -j4
-        sudo make install
+        pushd PythonPackage/*
+        python3 -m pip install .
 
     - name: Validate
       run: |
@@ -84,4 +84,4 @@ jobs:
         export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib
         printenv
         # run validation via pytest (for Python packages)
-        python -m pytest validation/scripts/test_bornagain.py
+        python3 -m pytest validation/scripts/test_bornagain.py
