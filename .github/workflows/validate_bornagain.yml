@@ -68,11 +68,9 @@ jobs:
         git clone --depth 1 --single-branch --branch main https://jugit.fz-juelich.de/mlz/bornagain.git
         pushd bornagain
         git submodule update
-        # disable tests, since there is no CMake option to do so:
-        sed -i 's/add_subdirectory(Tests/# add_subdirectory(Tests/g' CMakeLists.txt
         mkdir build && pushd build
 
-        cmake -DBA_PY_PACKAGE=ON -DBA_GUI=OFF -DBA_TIFF_SUPPORT=OFF -DCMAKE_INSTALL_PREFIX=/usr/local ../
+        cmake -DBA_PY_PACKAGE=ON -DBA_GUI=OFF -DCMAKE_INSTALL_PREFIX=/usr/local ../
         make -j4
         pushd PythonPackage/*
         python3 -m pip install .
