@@ -1,0 +1,7 @@
+# a four layer system that has absorption
+layers/test1.layers
+data/test1.dat
+# AGUIDE:
+90
+# H:
+0
