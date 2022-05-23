@@ -19,12 +19,12 @@ For some common geometries, here are some corresponding angles:
 #### Guide field H in sample plane (perpendicular to Q)
 For e.g. a vertical-axis right-handed reflectometer, when the guide field at sample points up
 
- - _AGUIDE_ = pi/2
- - _theta<sub>M</sub>_ = pi/2 for _M<sub>IP</sub>_ || _H_
+ - _AGUIDE_ = 90&deg;
+ - _theta<sub>M</sub>_ = 90&deg; for _M<sub>IP</sub>_ || _H_
 
 #### Guide field H || Q
 Where the guide field is normal to the surface:
- - _AGUIDE_ = 0
+ - _AGUIDE_ = 0&deg;
  - _theta<sub>M</sub>_ is not constrained (any choice of _x<sub>Sample</sub>_ is equally valid), and does not contribute to the calculation of the scattering
 
 

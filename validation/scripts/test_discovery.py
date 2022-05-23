@@ -67,14 +67,13 @@ def get_data(file):
 
 def get_polarised_test_data():
     """
-    A generator yielding (slabs, data) tuples.
+    A generator yielding (slabs, data, AGUIDE, H) tuples.
 
     `slabs` are np.ndarrays that specify the layer structure of the test.
     ``slabs.shape = (N + 2, 6)``, where N is the number of layers.
 
     The layer specification file has the layout:
 
-    # { "AGUIDE": angle_between_Q_and_H }
     ignored     SLDn_fronting ignored      ignored   ignored ignored
     thickness_1 SLDn_1        iSLD_1       thetaM_1  SLDm_1  rough_fronting1
     thickness_2 SLDn_2        iSLD_2       thetaM_2  SLDm_2  rough_12
