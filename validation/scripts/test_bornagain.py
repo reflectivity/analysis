@@ -37,19 +37,19 @@ def get_sample(slabs):
     return multi_layer
 
 
-def get_simulation(qzs):
+def get_simulation(qzs, sample):
     """
     Defines and returns specular simulation
     with a qz-defined beam
     """
     # bornagain requires Qz in nm
     scan = ba.QzScan(qzs * 10.0)
-    simulation = ba.SpecularSimulation()
-    simulation.setScan(scan)
+    simulation = ba.SpecularSimulation(scan, sample)
+    # simulation.setScan(scan)
     return simulation
 
 
-def get_simulation_smeared(qzs, dqzs):
+def get_simulation_smeared(qzs, dqzs, sample):
     """
     Defines and returns specular simulation
     with a qz-defined beam
@@ -62,8 +62,7 @@ def get_simulation_smeared(qzs, dqzs):
     scan = ba.QzScan(qzs * 10.0)
     scan.setAbsoluteQResolution(distr, dqzs * 10.0)
 
-    simulation = ba.SpecularSimulation()
-    simulation.setScan(scan)
+    simulation = ba.SpecularSimulation(scan, sample)
 
     return simulation
 
@@ -98,9 +97,9 @@ def test_bornagain(nsd):
 
 
 def resolution_test(slabs, data):
-    simulation = get_simulation_smeared(data[:, 0], data[:, -1])
     sample = get_sample(slabs)
-    simulation.setSample(sample)
+    simulation = get_simulation_smeared(data[:, 0], data[:, -1], sample)
+
     res = simulation.simulate()
     R = res.array()
 
@@ -120,9 +119,8 @@ def kernel_test(slabs, data):
     data: np.ndarray
         Q, R arrays
     """
-    simulation = get_simulation(data[:, 0])
     sample = get_sample(slabs)
-    simulation.setSample(sample)
+    simulation = get_simulation(data[:, 0], sample)
     res = simulation.simulate()
     R = res.array()
 
