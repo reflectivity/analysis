@@ -85,13 +85,15 @@ def kernel_test(test_name, slabs, data, local_nodeenv):
     np.testing.assert_allclose(R, data[:, 1], rtol=8e-5)
 
 
-def install_local_nodeenv(path="tmp", version="v16.15.0", clean=False, force_local_node=False):
+def install_local_nodeenv(
+    path="tmp", version="v16.15.0", clean=False, force_local_node=False
+):
     """returns path to node executable and refl and magrefl node wrappers"""
     current_folder = os.path.dirname(__file__)
     test_folder = os.path.join(os.path.dirname(current_folder), "test")
     working_folder = os.path.join(test_folder, path)
     os.makedirs(working_folder, exist_ok=True)
-    
+
     node_exe_path = shutil.which("node")
     print(f"system node exe: {node_exe_path}")
     if node_exe_path is None or force_local_node:
