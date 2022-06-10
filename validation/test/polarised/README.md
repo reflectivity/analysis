@@ -39,7 +39,7 @@ data/test0.dat
 
 ## Layer specification:
 
-| thickness	| sld | mu | thetaM | sldm | roughness |
+| thickness (Å)	| sld | mu | thetaM $({}^\circ)$ | sldm | roughness (Å)|
 | --------- | --- | -- | ------ | ---- | --------- |
 | _0.000_&dagger; | 0.000 | _0.000_&dagger; | 90.00 | 0.000 | 0.000 |
 | 50.00 | 4.000 | 0.000 | 90.00 | 0.000 | 0.000 |
@@ -47,10 +47,9 @@ data/test0.dat
 | _0.000_&dagger; | 2.070 | 0.000 | 90.00 | 0.000 | 0.000 |
 ...
 
+**sld**, **mu** and **sldm** (the magnetic sld) have units $1\times 10^{-6} \textrm{Å}^{-2}$.
 
 These values marked with &dagger; are ignored:
  - the fronting and backing media have no
 thickness
  - absorption is also ignored in the fronting medium.
-
-The real and imaginary parts of the SLD values have units $1\times 10^{-6} \textrm{Å}^{-2}$.
