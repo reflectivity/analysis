@@ -153,12 +153,13 @@ def test_genx_pol(nsd, backend):
     # 4 - test resolution smearing and chi2 calculation
 
     test_name, slabs, data, AGUIDE, H = nsd
+    # convert from AGUIDE+theta to relative angle phi
     slabs = np.array(slabs)
     slabs[:, 3] = angle_between(AGUIDE, slabs[:, 3])
 
     if (
         backend != "neutron pol spin flip"
-        and (((np.array(slabs)[:, 3] - 90) % 180) != 0).any()
+        and ((np.array(slabs)[:, 3] % 180) != 0).any()
     ):
         pytest.skip(
             "models with spin-flip can't be "
