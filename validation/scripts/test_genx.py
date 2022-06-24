@@ -108,18 +108,32 @@ def kernel_test(slabs, data, backend):
     else:
         np.testing.assert_allclose(R, data[:, 1], rtol=0.001)
 
-# "neutron pol" does use Parratt with different SLD for spin-up/spin-down, only valid for M||P
+
+# "neutron pol" does use Parratt with different SLD
+# for spin-up/spin-down, only valid for M||P
 pol_backends = ["neutron pol", "neutron pol spin flip"]
-pol_tests_backends = list(itertools.product(get_polarised_test_data(), pol_backends))
+pol_tests_backends = list(
+    itertools.product(get_polarised_test_data(), pol_backends)
+)
 pol_ids = [f"{t[0][0]}-{t[1]}" for t in pol_tests_backends]
+
 
 def angle_between(AGUIDE, theta):
     # calculate angle between magnetization and guide field
-    M = np.array([np.cos(theta/180.*np.pi), np.sin(theta/180.*np.pi), 0.*theta])
-    P = np.array([0., np.sin(AGUIDE/180.*np.pi), np.cos(AGUIDE/180.*np.pi)])
+    M = np.array(
+        [
+            np.cos(theta / 180.0 * np.pi),
+            np.sin(theta / 180.0 * np.pi),
+            0.0 * theta,
+        ]
+    )
+    P = np.array(
+        [0.0, np.sin(AGUIDE / 180.0 * np.pi), np.cos(AGUIDE / 180.0 * np.pi)]
+    )
 
     phi = np.arccos(np.clip(np.dot(M.T, P), -1.0, 1.0))
-    return phi*180./np.pi
+    return phi * 180.0 / np.pi
+
 
 @pytest.mark.parametrize("nsd, backend", pol_tests_backends, ids=pol_ids)
 def test_genx_pol(nsd, backend):
@@ -142,11 +156,16 @@ def test_genx_pol(nsd, backend):
     slabs = np.array(slabs)
     slabs[:, 3] = angle_between(AGUIDE, slabs[:, 3])
 
-    if backend!='neutron pol spin flip' and (((np.array(slabs)[:,3]-90)%180)!=0).any():
-        # models with spin-flip can't be described by the "neutron pol" model
-        pytest.skip("models with spin-flip can't be described by the 'neutron pol' model")
+    if (
+        backend != "neutron pol spin flip"
+        and (((np.array(slabs)[:, 3] - 90) % 180) != 0).any()
+    ):
+        pytest.skip(
+            "models with spin-flip can't be "
+            "described by the 'neutron pol' model"
+        )
         return
-    if H>0:
+    if H > 0:
         pytest.skip("GenX does not support Zeeman splitting")
         return
     kernel_test_pol(slabs, data, backend)
@@ -169,15 +188,20 @@ def kernel_test_pol(slabs, data, backend):
 
     layers = []
     for thickness, rsld, isld, theta, sldm, sigma in slabs:
-        if backend=='neutron pol':
-            sldm *= 1-(theta%360>0).astype(int)*2
+        if backend == "neutron pol":
+            sldm *= 1 - (theta % 360 > 0).astype(int) * 2
         layers.append(
             model.Layer(
-                b=(rsld - 1j * isld), dens=0.1, d=thickness, sigma=sigma,
-                magn=sldm/muB_to_SL*1e-5, magn_ang=theta,
+                b=(rsld - 1j * isld),
+                dens=0.1,
+                d=thickness,
+                sigma=sigma,
+                magn=sldm / muB_to_SL * 1e-5,
+                magn_ang=theta,
             )
         )
-    #layers.reverse() # the layer order in pol tests is currently reversed compared to unpol
+    # layers.reverse() # the layer order in pol tests
+    # is currently reversed compared to unpol
     stack = model.Stack(Layers=list(layers[1:-1]), Repetitions=1)
     sample = model.Sample(
         Stacks=[stack], Ambient=layers[-1], Substrate=layers[0]
@@ -198,14 +222,14 @@ def kernel_test_pol(slabs, data, backend):
         pol="uu",
     )
 
-    inst.pol='uu'
+    inst.pol = "uu"
     Rup = sample.SimSpecular(Q, inst)
-    if backend=='neutron pol spin flip':
-        inst.pol='ud'
+    if backend == "neutron pol spin flip":
+        inst.pol = "ud"
         Rflip = sample.SimSpecular(Q, inst)
     else:
-        Rflip = 0.*Rup
-    inst.pol='dd'
+        Rflip = 0.0 * Rup
+    inst.pol = "dd"
     Rdown = sample.SimSpecular(Q, inst)
 
     assert Rup.shape == data[:, 1].shape
