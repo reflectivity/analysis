@@ -60,7 +60,7 @@ def get_simulation_smeared(qzs, dqzs, sample):
     distr = ba.RangedDistributionGaussian(n_samples, n_sig)
 
     scan = ba.QzScan(qzs * 10.0)
-    scan.setAbsoluteQResolution(distr, dqzs * 10.0)
+    scan.setAbsoluteQVectorResolution(distr, dqzs * 10.0)
 
     simulation = ba.SpecularSimulation(scan, sample)
 
