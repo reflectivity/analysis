@@ -2,7 +2,6 @@ import pytest
 
 import numpy as np
 from test_discovery import get_test_data
-from anaklasis import ref
 
 
 tests = list(get_test_data())
@@ -56,6 +55,8 @@ def anaklasis_layer_matrix(slabs):
 
 def kernel_test(slabs, data):
     # test unsmeared reflectivity calculation
+    from anaklasis import ref
+
     q = data[:, 0]
     R = data[:, 1]
 
@@ -79,6 +80,8 @@ def kernel_test(slabs, data):
 
 def resolution_test(slabs, data):
     # test unsmeared reflectivity calculation
+    from anaklasis import ref
+
     q = data[:, 0]
     R = data[:, 1]
     # dq is a standard deviation but with anaklasis dQ represents the FWHM
