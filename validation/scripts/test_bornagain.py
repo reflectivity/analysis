@@ -58,7 +58,7 @@ def get_simulation_smeared(qzs, dqzs, sample):
     # n_sig = 3.5
     # n_samples = 21
 
-    distr = ba.DistributionGaussian(0., 1., 21, 3.5)
+    distr = ba.DistributionGaussian(0.0, 1.0, 21, 3.5)
     scan = ba.QzScan(qzs * 10.0)
     scan.setVectorResolution(distr, dqzs * 10.0)
 
