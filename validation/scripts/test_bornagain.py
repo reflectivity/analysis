@@ -55,13 +55,12 @@ def get_simulation_smeared(qzs, dqzs, sample):
     with a qz-defined beam
     """
     # 3.5 sigma to sync with refnx
-    n_sig = 3.5
-    n_samples = 21
+    # n_sig = 3.5
+    # n_samples = 21
 
     distr = ba.DistributionGaussian(0., 1., 21, 3.5)
-    scan.setVectorResolution(distr, dqzs * 10.0)
     scan = ba.QzScan(qzs * 10.0)
-    scan.setAbsoluteQVectorResolution(distr, dqzs * 10.0)
+    scan.setVectorResolution(distr, dqzs * 10.0)
 
     simulation = ba.SpecularSimulation(scan, sample)
 
