@@ -12,12 +12,12 @@ on:
 
 jobs:
   validate_bornagain:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     strategy:
       max-parallel: 3
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
 
     - name: setup apt dependencies
       run: |
@@ -28,7 +28,9 @@ jobs:
         sudo apt-get install -y --no-install-recommends build-essential \
           gfortran cmake \
           libgsl-dev libboost-all-dev libfftw3-dev libtiff5-dev libcerf-dev libeigen3-dev \
-          qt5-default libqt5designercomponents5 qttools5-dev libqt5svg5-dev libqt5opengl5-dev libx11-xcb1
+          qtbase5-dev libqt5designercomponents5 qttools5-dev libqt5svg5-dev libqt5opengl5-dev libx11-xcb1
+
+        sudo apt-get install -y --no-install-recommends qt6-base-dev libqt6svg6-dev
 
     - name: install own dependency LibHeinz
       run: |
