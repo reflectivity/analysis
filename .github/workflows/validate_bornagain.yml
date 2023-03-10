@@ -41,7 +41,6 @@ jobs:
 
     - name: install own dependency LibHeinz
       run: |
-        printenv
         git clone https://jugit.fz-juelich.de/mlz/libheinz.git
         pushd libheinz
         mkdir build && pushd build
