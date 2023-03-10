@@ -32,6 +32,13 @@ jobs:
 
         sudo apt-get install -y --no-install-recommends qt6-base-dev libqt6svg6-dev
 
+    - name: ccache
+      uses: hendrikmuhs/ccache-action@v1.2
+
+    - name: permanently amend PATH
+      run: |
+          echo "PATH=/usr/lib/ccache:/usr/local/opt/ccache/libexec:$PATH" >> $GITHUB_ENV
+
     - name: install own dependency LibHeinz
       run: |
         git clone https://jugit.fz-juelich.de/mlz/libheinz.git
