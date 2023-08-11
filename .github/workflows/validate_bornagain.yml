@@ -25,70 +25,21 @@ jobs:
 
         sudo apt-get install -y --no-install-recommends python3-dev python3-pip
 
-        sudo apt-get install -y --no-install-recommends build-essential \
-          gfortran cmake \
-          libgsl-dev libboost-all-dev libfftw3-dev libtiff5-dev libcerf-dev libeigen3-dev \
-          qtbase5-dev libqt5designercomponents5 qttools5-dev libqt5svg5-dev libqt5opengl5-dev libx11-xcb1
-
-        sudo apt-get install -y --no-install-recommends qt6-base-dev libqt6svg6-dev
-
-    - name: ccache
-      uses: hendrikmuhs/ccache-action@v1.2
-
-    - name: permanently amend PATH
-      run: |
-          echo "PATH=/usr/lib/ccache:/usr/local/opt/ccache/libexec:$PATH" >> $GITHUB_ENV
-
-    - name: install own dependency LibHeinz
-      run: |
-        git clone https://jugit.fz-juelich.de/mlz/libheinz.git
-        pushd libheinz
-        mkdir build && pushd build
-        cmake ..
-        make
-        sudo make install
-
-    - name: install own dependency libcerf
-      run: |
-        git clone https://jugit.fz-juelich.de/mlz/libcerf.git
-        pushd libcerf
-        mkdir build && pushd build
-        cmake ..
-        make
-        sudo make install
-
-    - name: install own dependency LibFormFactor
-      run: |
-        git clone https://jugit.fz-juelich.de/mlz/libformfactor.git
-        pushd libformfactor
-        mkdir build && pushd build
-        cmake ..
-        make
-        sudo make install
-
     - name: Install Python packages
       run: |
         python3 -m pip install --upgrade pip
         python3 -m pip install cython pytest build wheel setuptools
         python3 -m pip install numpy matplotlib auditwheel
 
-    - name: Build BornAgain
+    - name: Install BornAgain
       run: |
-        git clone --depth 1 --single-branch --branch main https://jugit.fz-juelich.de/mlz/bornagain.git
-        pushd bornagain
-        git submodule update
-        mkdir build && pushd build
-
-        cmake -DBA_PY_PACKAGE=ON -DBA_GUI=OFF -DCMAKE_INSTALL_PREFIX=/usr/local ../
-        make -j4
-        pushd PythonPackage/*
-        python3 -m pip install .
+        python3 -m pip install bornagain
 
     - name: Validate
       run: |
         # source /usr/local/bin/thisbornagain.sh
-        ls -al /usr/local/bin
-        export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib
-        printenv
+        # ls -al /usr/local/bin
+        # export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib
+        # printenv
         # run validation via pytest (for Python packages)
         python3 -m pytest validation/scripts/test_bornagain.py
