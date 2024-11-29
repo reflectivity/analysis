@@ -29,7 +29,7 @@ jobs:
       run: |
         python3 -m pip install --upgrade pip
         python3 -m pip install cython pytest build wheel setuptools
-        python3 -m pip install numpy matplotlib auditwheel
+        python3 -m pip install numpy==1.26.4 matplotlib auditwheel
 
     - name: Install BornAgain
       run: |
