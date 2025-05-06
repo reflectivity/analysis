@@ -132,7 +132,7 @@ def test_pol_refl1d(nsd, backend):
     """
     test_name, slabs, data, AGUIDE, H = nsd
 
-    Rmm, Rmp, Rpm, Rpp = pol_kernel_test(slabs[::-1], data, AGUIDE, H, backend)
+    Rmm, Rmp, Rpm, Rpp = pol_kernel_test(slabs, data, AGUIDE, H, backend)
 
 
 def pol_kernel_test(slabs, data, AGUIDE, H, backend):
