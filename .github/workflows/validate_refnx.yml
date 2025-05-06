@@ -31,7 +31,7 @@ jobs:
           python3 -m pip install --upgrade pip
           python3 -m pip install wheel setuptools
           python3 -m pip install numpy scipy cython pytest black
-          python3 -m pip install refnx
+          python3 -m pip install git+https://github.com/refnx/refnx.git@main
 
       - name: Validate
         run: |

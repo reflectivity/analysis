@@ -201,8 +201,7 @@ def kernel_test_pol(slabs, data, backend):
                 magn_ang=theta,
             )
         )
-    # layers.reverse() # the layer order in pol tests
-    # is currently reversed compared to unpol
+    layers.reverse()
     stack = model.Stack(Layers=list(layers[1:-1]), Repetitions=1)
     sample = model.Sample(
         Stacks=[stack], Ambient=layers[-1], Substrate=layers[0]

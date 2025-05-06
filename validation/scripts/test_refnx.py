@@ -2,9 +2,16 @@ import itertools
 import warnings
 import pytest
 import numpy as np
-from test_discovery import get_test_data
+from test_discovery import get_test_data, get_polarised_test_data
 
-from refnx.reflect import use_reflect_backend, SLD, ReflectModel, Structure
+from refnx.reflect import (
+    use_reflect_backend,
+    SLD,
+    ReflectModel,
+    Structure,
+    MagneticSlab,
+    PolarisedReflectModel,
+)
 
 
 # cython backend may or may not be present on all systems
@@ -78,6 +85,75 @@ def resolution_test(slabs, data, backend):
         np.testing.assert_allclose(R, data[:, 1], rtol=0.03)
 
 
+pol_tests = list(get_polarised_test_data())
+pol_ids = [f"{t[0]}" for t in pol_tests]
+
+
+@pytest.mark.parametrize("nsd", pol_tests, ids=pol_ids)
+def test_refnx_pol(nsd):
+    """
+    Run validation for genx.
+
+    Parameters
+    ----------
+    nsd: tuple
+        test_name, slabs, data
+    """
+    # NCOLS of data:
+    # 2 - test kernel only
+    # 3 - test kernel and chi2 calculation
+    # 4 - test resolution smearing and chi2 calculation
+    test_name, slabs, data, AGUIDE, H = nsd
+    if H > 0:
+        pytest.skip("refnx does not support Zeeman splitting (yet)")
+        return
+
+    slabs = np.array(slabs)
+    kernel_test_pol(slabs, data, AGUIDE)
+
+
+def kernel_test_pol(slabs, data, AGUIDE):
+    """
+    Test the polarised reflectivity kernel for refnx.
+
+    Parameters
+    ----------
+    slabs: np.ndarray
+        Slab representation of the system
+    data: np.ndarray
+        Q, R arrays (--, -+, +-, ++)
+    AGUIDE: float
+        AGUIDE (degrees)
+    """
+    Q = data[:, 0]
+    npts = len(Q)
+
+    layers = []
+    for thickness, rsld, isld, theta, sldm, sigma in slabs:
+        slab = MagneticSlab(
+            thickness, rsld + 1j * isld, sigma, sldm, thetaM=theta
+        )
+        layers.append(slab)
+    s = Structure(components=layers)
+    model = PolarisedReflectModel(s, bkgs=0.0, dq=0.0, Aguide=AGUIDE)
+    qq = np.full((len(Q) * 4, 4), np.nan)
+    qq[0:npts, 0] = Q
+    qq[npts : 2 * npts, 1] = Q
+    qq[2 * npts : 3 * npts, 2] = Q
+    qq[3 * npts : 4 * npts, 3] = Q
+    R = model(qq)
+    Ruu = R[0:npts]
+    Rud = R[npts : 2 * npts]
+    Rdu = R[2 * npts : 3 * npts]
+    Rdd = R[3 * npts : 4 * npts]
+    np.testing.assert_allclose(Ruu, data[:, 4], rtol=8e-5)
+    np.testing.assert_allclose(Rdd, data[:, 1], rtol=8e-5)
+    np.testing.assert_allclose(Rud, data[:, 3], rtol=8e-5)
+    np.testing.assert_allclose(Rdu, data[:, 2], rtol=8e-5)
+
+
 if __name__ == "__main__":
     for nsd, backend in tests_backends:
         test_refnx(nsd, backend)
+    for nsd, backend in pol_tests_backends:
+        test_refnx_pol(nsd, backend)
