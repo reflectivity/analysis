@@ -4,6 +4,7 @@ from test_discovery import get_test_data
 
 import bornagain as ba
 from bornagain import angstrom
+from bornagain.numpyutil import Arrayf64Converter as dac
 
 
 def get_sample(slabs):
@@ -11,7 +12,7 @@ def get_sample(slabs):
     Defines sample and returns it. Note that SLD-based materials are used.
     """
     # creating materials
-    multi_layer = ba.MultiLayer()
+    multi_layer = ba.Sample()
 
     ambient = ba.MaterialBySLD("ma", slabs[0, 1] * 1e-6, 0)
     layer = ba.Layer(ambient)
@@ -19,20 +20,21 @@ def get_sample(slabs):
 
     for slab in slabs[1:-1]:
         material = ba.MaterialBySLD("stuff", slab[1] * 1e-6, slab[2] * 1e-6)
-        layer = ba.Layer(material, slab[0] * angstrom)
 
-        roughness = ba.LayerRoughness()
-        roughness.setSigma(slab[3] * angstrom)
+        autocorr = ba.SelfAffineFractalModel(slab[3] * angstrom, 0.7, 250*angstrom)
+        roughness = ba.Roughness(autocorr, ba.ErfTransient())
 
-        multi_layer.addLayerWithTopRoughness(layer, roughness)
+        layer = ba.Layer(material, slab[0] * angstrom, roughness)
+        multi_layer.addLayer(layer)
 
     substrate = ba.MaterialBySLD("msub", slabs[-1, 1] * 1e-6, 0)
-    layer = ba.Layer(substrate)
-    roughness = ba.LayerRoughness()
-    roughness.setSigma(slabs[-1, 3] * angstrom)
-    multi_layer.addLayerWithTopRoughness(layer, roughness)
 
-    multi_layer.setRoughnessModel(ba.RoughnessModel.NEVOT_CROCE)
+    autocorr = ba.SelfAffineFractalModel(slabs[-1, 3] * angstrom, 0.7, 250*angstrom)
+    roughness = ba.Roughness(autocorr, ba.ErfTransient())
+
+    layer = ba.Layer(substrate, 0, roughness)
+
+    multi_layer.addLayer(layer)
 
     return multi_layer
 
@@ -101,7 +103,7 @@ def resolution_test(slabs, data):
     simulation = get_simulation_smeared(data[:, 0], data[:, -1], sample)
 
     res = simulation.simulate()
-    R = res.array()
+    R = dac.asNpArray(res.dataArray())
 
     assert R.shape == data[:, 1].shape
 
@@ -122,7 +124,7 @@ def kernel_test(slabs, data):
     sample = get_sample(slabs)
     simulation = get_simulation(data[:, 0], sample)
     res = simulation.simulate()
-    R = res.array()
+    R = dac.asNpArray(res.dataArray())
 
     assert R.shape == data[:, 1].shape
 
