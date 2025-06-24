@@ -1,13 +1,13 @@
 Sample Model Collection
 =======================
 
-For collecting real world models for reflectometry, if possibel from published work.
+For collecting real world models for reflectometry, if possible from published work.
 
 Please create one folder and a corresponding description file:
 {your_model}/*.* # all files relevant for the model, data, fit, images, etc.
 {your_model}.md
 
-As template for the model description you can use the followin:
+As template for the model description you can use the following:
 
 
 your_model
