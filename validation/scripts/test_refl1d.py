@@ -98,7 +98,7 @@ def resolution_test(slabs, data):
         argmin = np.argmin(data[:, 0])
         argmax = np.argmax(data[:, 0])
 
-        probe.calc_Qo = np.linspace(
+        probe._calc_Q = np.linspace(
             data[argmin, 0] - 3.5 * data[argmin, 3],
             data[argmax, 0] + 3.5 * data[argmax, 3],
             21 * len(data),
