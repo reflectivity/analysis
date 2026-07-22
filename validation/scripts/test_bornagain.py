@@ -4,7 +4,6 @@ from test_discovery import get_test_data
 
 import bornagain as ba
 from bornagain import angstrom, nm
-from bornagain.numpyutil import Arrayf64Converter as dac
 
 
 def get_sample(slabs):
@@ -116,7 +115,7 @@ def resolution_test(slabs, data):
     simulation = get_simulation_smeared(data[:, 0], data[:, -1], sample)
 
     res = simulation.simulate()
-    R = dac.npArray(res.dataArray())
+    R = res.intensities()
 
     assert R.shape == data[:, 1].shape
 
@@ -137,7 +136,7 @@ def kernel_test(slabs, data):
     sample = get_sample(slabs)
     simulation = get_simulation(data[:, 0], sample)
     res = simulation.simulate()
-    R = dac.npArray(res.dataArray())
+    R = res.intensities()
 
     assert R.shape == data[:, 1].shape
 
