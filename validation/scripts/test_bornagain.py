@@ -12,8 +12,9 @@ def get_sample(slabs):
     """
     # creating materials
     multi_layer = ba.Sample()
+    color = (0.1, 0.1, 0.1)
 
-    ambient = ba.SLDMaterial("ma", slabs[0, 1] * 1e-6, 0)
+    ambient = ba.SLDMaterial("ma", color, slabs[0, 1] * 1e-6, 0)
     layer = ba.Layer(ambient)
     multi_layer.addLayer(layer)
 
@@ -21,7 +22,7 @@ def get_sample(slabs):
     transient = ba.ErfTransient()
 
     for slab in slabs[1:-1]:
-        material = ba.SLDMaterial("stuff", slab[1] * 1e-6, slab[2] * 1e-6)
+        material = ba.SLDMaterial("stuff", color, slab[1] * 1e-6, slab[2] * 1e-6)
 
         #  sig: (
         #     SelfAffineFractalModel self,
@@ -37,7 +38,7 @@ def get_sample(slabs):
 
         multi_layer.addLayer(layer)
 
-    substrate = ba.SLDMaterial("msub", slabs[-1, 1] * 1e-6, 0)
+    substrate = ba.SLDMaterial("msub", color, slabs[-1, 1] * 1e-6, 0)
 
     r_autocorr = ba.SelfAffineFractalModel(slabs[-1, 3] * angstrom, 1.0, 1000 * nm)
 
