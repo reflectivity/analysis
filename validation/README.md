@@ -2,6 +2,11 @@
 Tests for reflectivity calculations
 (from Andrew Nelson: https://github.com/andyfaff/orso)
 
+## Generation of smeared data for validation
+As described in the header of e.g. [./test/unpolarised/test5](./test/unpolarised/test5.txt), 
+resolution-smeared data is generated for validation tests using `refnx`
+with pointwise + 10001 points in the gaussian quadrature, dQ/Q = 0.05 FWHM or 0.0212 1-sigma
+
 ## Polarised tests
 ### Coordinate system: Refl1D
 The coordinate system used by Refl1D is based on the book chapter "Polarized Neutron Reflectometry" [^1] by C. F. Majkrzak et al. and is defined as seen in this figure: ![NIST_coords](./NIST_coords.png)
